@@ -1,0 +1,30 @@
+/// SAHAMITHRA — Named route constants
+abstract class AppRoutes {
+  static const String splash            = '/splash';
+  static const String onboarding        = '/onboarding';
+  static const String publicDashboard   = '/public-dashboard';
+  static const String assessmentMenu    = '/assessment-menu';
+  static const String login             = '/login';
+  static const String otpVerification   = '/otp-verification';
+  static const String registration      = '/registration';
+  static const String dashboard         = '/dashboard';
+  static const String tdsc              = '/tdsc';
+  static const String lest              = '/lest';
+  static const String results           = '/results';
+  static const String stress            = '/stress';
+  static const String risk              = '/risk';
+  static const String institutions      = '/institutions';
+  static const String videos            = '/videos';
+  static const String therapistDashboard = '/therapist-dashboard';
+  static const String activityLibrary   = '/activity-library';
+  static const String progressTracking  = '/progress-tracking';
+  static const String gamification      = '/gamification';
+  static const String appointmentBooking = '/appointment-booking';
+  static const String teamCollaboration = '/team-collaboration';
+  static const String cdmcServices      = '/cdmc-services';
+  static const String weeklySchedule    = '/weekly-schedule';
+  static const String reminders         = '/reminders';
+  static const String feedback          = '/feedback';
+  static const String dataPrivacy       = '/data-privacy';
+  static const String reports           = '/reports';
+}
