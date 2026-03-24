@@ -137,6 +137,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       final data = result['data'];
       final userType = data?['user_type']; // "New" or "Existing"
       final accessToken = data?['access_token'];
+      final refreshToken = data?['refresh_token'];
       final isExistingUser = userType == "Existing";
 
       // ── Save Session Data ──────────────────────────────────────────────────
@@ -145,12 +146,20 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
 
       if (isExistingUser && accessToken != null) {
         await utils.setToken(accessToken);
+        if (refreshToken != null && refreshToken is String) {
+          await utils.setRefreshToken(refreshToken);
+        }
         await utils.setLoggedIn(true);
 
         // Fetch Init Data for Existing User
-        final initResult = await NetworkHelper().getInit(accessToken);
+        final initResult = await NetworkHelper().getInit();
         if (initResult['success']) {
-          await utils.setUserData(initResult['data']);
+          final initData = initResult['data'];
+          if (initData is Map<String, dynamic>) {
+            await utils.setInitUserAndFirstChild(initData);
+          } else if (initData is Map) {
+            await utils.setUserData(initData.cast<String, dynamic>());
+          }
         }
       }
 

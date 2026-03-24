@@ -43,7 +43,7 @@ class _InstitutionFinderScreenState extends State<InstitutionFinderScreen> {
       return;
     }
 
-    final result = await NetworkHelper().getTherapyCentres(token);
+    final result = await NetworkHelper().getTherapyCentres();
 
     if (mounted) {
       setState(() {

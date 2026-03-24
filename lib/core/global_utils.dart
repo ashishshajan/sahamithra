@@ -74,7 +74,132 @@ class GlobalUtils {
   Future<void> setChildAgeGroup(String value) async => await _prefs.setString(_keyChildAgeGroup, value);
 
   Future<void> setUserData(Map<String, dynamic> value) async {
+    print('Getinit setuserdata response ${jsonEncode(value)}');
     await _prefs.setString(_keyUserData, jsonEncode(value));
+  }
+
+  /// Persists `getInit()` response:
+  /// - Parent details from `data['user']`
+  /// - First child details from `data['children'][0]`
+  Future<void> setInitUserAndFirstChild(Map<String, dynamic> initData) async {
+    // Keep full payload for any screens that need the entire init response.
+    await setUserData(initData['data']);
+
+    // Ensure we refresh values on every getInit() by clearing old cached fields.
+    await _prefs.remove(_keyUserId);
+    await _prefs.remove(_keyParentName);
+    await _prefs.remove(_keyPhoneNumber);
+    await _prefs.remove(_keyChildId);
+    await _prefs.remove(_keyChildName);
+    await _prefs.remove(_keyChildGender);
+    await _prefs.remove(_keyChildDob);
+    await _prefs.remove(_keyChildAge);
+    await _prefs.remove(_keyChildAgeGroup);
+
+    final userRaw = initData['data']['user'];
+    if (userRaw is Map) {
+      final userMap = userRaw as Map<String, dynamic>;
+      final userIdRaw = userMap['id'];
+      if (userIdRaw is int) {
+        await setUserId(userIdRaw);
+      } else if (userIdRaw != null) {
+        final parsed = int.tryParse(userIdRaw.toString());
+        if (parsed != null) await setUserId(parsed);
+      }
+
+      final parentNameRaw = userMap['name'];
+      if (parentNameRaw is String && parentNameRaw.isNotEmpty) {
+        await setParentName(parentNameRaw);
+      }
+
+      final phoneRaw = userMap['phone'];
+      if (phoneRaw != null) {
+        await setPhoneNumber(phoneRaw.toString());
+      }
+    }
+
+    final childrenRaw = userRaw['children'];
+    if (childrenRaw is List && childrenRaw.isNotEmpty) {
+      final childRaw = childrenRaw.first;
+      if (childRaw is Map) {
+        final childMap = childRaw as Map<String, dynamic>;
+        print('Child map ${childMap}');
+        final childIdRaw = childMap['id'];
+        if (childIdRaw is int) {
+          await setChildId(childIdRaw);
+        } else if (childIdRaw != null) {
+          final parsed = int.tryParse(childIdRaw.toString());
+          if (parsed != null) await setChildId(parsed);
+        }
+
+        final childNameRaw = childMap['name'];
+        if (childNameRaw is String && childNameRaw.isNotEmpty) {
+          await setChildName(childNameRaw);
+        }
+
+        final genderRaw = childMap['gender'];
+        if (genderRaw is String && genderRaw.isNotEmpty) {
+          await setChildGender(genderRaw);
+        }
+
+        final dobRaw = childMap['dob'];
+        if (dobRaw != null) {
+          await setChildDob(dobRaw.toString());
+        }
+
+        final ageRaw = childMap['age'];
+        if (ageRaw is int) {
+          await setChildAge(ageRaw);
+        } else if (ageRaw != null) {
+          final parsedAge = int.tryParse(ageRaw.toString());
+          if (parsedAge != null) await setChildAge(parsedAge);
+        }
+
+        final ageGroupRaw = childMap['age_group'];
+        if (ageGroupRaw is String && ageGroupRaw.isNotEmpty) {
+          await setChildAgeGroup(ageGroupRaw);
+        }
+      }
+    }
+  }
+
+  /// Persists the active child when the user picks a different child (e.g. Account screen).
+  Future<void> persistChildFromMap(Map<String, dynamic> childMap) async {
+    final childIdRaw = childMap['id'];
+    if (childIdRaw is int) {
+      await setChildId(childIdRaw);
+    } else if (childIdRaw != null) {
+      final parsed = int.tryParse(childIdRaw.toString());
+      if (parsed != null) await setChildId(parsed);
+    }
+
+    final childNameRaw = childMap['name'];
+    if (childNameRaw is String && childNameRaw.isNotEmpty) {
+      await setChildName(childNameRaw);
+    }
+
+    final genderRaw = childMap['gender'];
+    if (genderRaw is String && genderRaw.isNotEmpty) {
+      await setChildGender(genderRaw);
+    }
+
+    final dobRaw = childMap['dob'];
+    if (dobRaw != null) {
+      await setChildDob(dobRaw.toString());
+    }
+
+    final ageRaw = childMap['age'];
+    if (ageRaw is int) {
+      await setChildAge(ageRaw);
+    } else if (ageRaw != null) {
+      final parsedAge = int.tryParse(ageRaw.toString());
+      if (parsedAge != null) await setChildAge(parsedAge);
+    }
+
+    final ageGroupRaw = childMap['age_group'];
+    if (ageGroupRaw is String && ageGroupRaw.isNotEmpty) {
+      await setChildAgeGroup(ageGroupRaw);
+    }
   }
 
   // Clear session data (Logout)

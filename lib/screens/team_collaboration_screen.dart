@@ -34,21 +34,17 @@ class _TeamCollaborationScreenState extends State<TeamCollaborationScreen> {
       _error = null;
     });
 
-    final token = GlobalUtils().token;
     final childId = GlobalUtils().childId;
 
-    if (token == null || childId == null) {
+    if (childId == null) {
       setState(() {
         _isLoading = false;
-        _error = 'Authentication details not found';
+        _error = 'Child id not found';
       });
       return;
     }
 
-    final result = await NetworkHelper().getCareTeam(
-      token: token,
-      childId: childId,
-    );
+    final result = await NetworkHelper().getCareTeam(childId: childId);
 
     if (!mounted) return;
 

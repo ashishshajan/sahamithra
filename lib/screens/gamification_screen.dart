@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:sahamitra1_0/widgets/gradient_header.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../providers/app_provider.dart';
@@ -19,7 +20,8 @@ class GamificationScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const StandardHeader(
+            GradientHeader(
+              onBack: () => Get.back(),
               showLogo: true,
               title: 'Achievements',
               subtitle: 'Keep up the great work! 🌟',

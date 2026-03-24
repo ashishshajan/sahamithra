@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:sahamitra1_0/providers/language_provider.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 
@@ -64,11 +66,13 @@ class LogoWidget extends StatelessWidget {
         _buildLogoImage(),
         if (showText) ...[
           SizedBox(width: 10.w),
-          ShaderMask(
-            shaderCallback: (bounds) =>
-                AppColors.primaryGradient.createShader(bounds),
-            child: Text(
-              'SAHAMITHRA',
+          // ShaderMask(
+          //   shaderCallback: (bounds) =>
+                // AppColors.primaryGradient.createShader(bounds),
+            // child:
+    Obx(
+    () => Text(
+              LanguageProvider.to.t('appName'),
               style: TextStyle(
                 fontSize: _fontSize,
                 fontWeight: FontWeight.w700,

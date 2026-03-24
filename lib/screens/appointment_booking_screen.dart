@@ -61,13 +61,12 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
       return;
     }
 
-    final token = GlobalUtils().token;
     final childId = GlobalUtils().childId;
 
-    if (token == null || childId == null) {
+    if (childId == null) {
       Get.snackbar(
         'Error',
-        'Authentication details not found. Please log in again.',
+        'Child id not found. Please log in again.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.error,
         colorText: Colors.white,
@@ -106,7 +105,6 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
     });
 
     final result = await NetworkHelper().createAppointmentRequest(
-      token: token,
       childId: childId,
       institutionId: institutionId,
       specialityId: specialityId,

@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
+import '../core/network/network_helper.dart';
+import '../core/global_utils.dart';
+import '../providers/language_provider.dart';
 import '../widgets/gradient_button.dart';
 import '../widgets/gradient_header.dart';
 import '../widgets/standard_footer.dart';
@@ -21,7 +24,7 @@ class _TDSCAssessmentScreenState extends State<TDSCAssessmentScreen> {
   int _currentDomain = 0;
   final Map<String, bool?> _answers = {};
 
-  final List<_Domain> _domains = [
+  List<_Domain> _domains = [
     _Domain(
       name: 'Gross Motor',
       icon: Icons.directions_run_rounded,
@@ -98,17 +101,130 @@ class _TDSCAssessmentScreenState extends State<TDSCAssessmentScreen> {
     setState(() => _answers[id] = value);
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    final result = await NetworkHelper().fetchScalesQuestions(category: 'TDSC');
+    if (!mounted) return;
+
+    if (result['success'] != true) return;
+
+    final payload = result['data'];
+    final questionsRaw = payload is Map ? payload['data'] : null;
+    if (questionsRaw is! List) return;
+
+    final questions = questionsRaw
+        .whereType<Map>()
+        .map((q) {
+          final id = q['id']?.toString() ?? '';
+          final englishText =
+              (q['question_english'] ?? q['question_malayalam'] ?? '')
+                  .toString();
+          final malayalamText =
+              (q['question_malayalam'] ?? q['question_english'] ?? englishText)
+                  .toString();
+          return _Question(id, englishText, '', malayalamText);
+        })
+        .where((q) => q.id.isNotEmpty)
+        .toList();
+
+    if (questions.isEmpty) return;
+
+    setState(() {
+      _answers.clear();
+      _currentDomain = 0;
+      _domains = [
+        _Domain(
+          name: 'TDSC',
+          icon: Icons.directions_run_rounded,
+          color: AppColors.blue600,
+          bgColor: AppColors.blue100,
+          questions: questions,
+        ),
+      ];
+    });
+  }
+
   void _nextDomain() {
+    print('Result for tDCS ${{
+      'type': 'TDSC',
+      'answers': _answers,
+      'score': _calculateScore(),
+    }}');
+    // return; 
     if (_currentDomain < _domains.length - 1) {
       setState(() => _currentDomain++);
     } else {
       // Navigate to results
-      Get.toNamed(AppRoutes.results, arguments: {
-        'type': 'TDSC',
-        'answers': _answers,
-        'score': _calculateScore(),
-      });
+
+    
+
+      _submitAssessmentAndGoToResults();
     }
+  }
+
+  Future<void> _submitAssessmentAndGoToResults() async {
+    final childId = GlobalUtils().childId ?? 1; // dummy fallback
+
+    // Convert `_answers` to API format:
+    // [{ "scale_id": <int>, "score": 1 }, ...]
+    final scores = _answers.entries
+        .map((e) {
+          // IDs can be numeric (e.g. "1") or prefixed (e.g. "q1") depending
+          // on how questions are provided by the backend.
+          final direct = int.tryParse(e.key);
+          final match = RegExp(r'\d+').firstMatch(e.key);
+          final parsedFromPrefix = match != null ? int.tryParse(match.group(0)!) : null;
+          final scaleId = direct ?? parsedFromPrefix;
+          if (scaleId == null) return null;
+          return <String, dynamic>{
+            'scale_id': scaleId,
+            // Per your example, always snd `score: 1` for each scale id.
+            'score': e.value == true ? 1 : 0,
+          };
+        })
+        .whereType<Map<String, dynamic>>()
+        .toList();
+
+    Map<String, dynamic>? resultData;
+    String? apiMessage;
+    double scoreForResults = _calculateScore()['percentage'] as double;
+
+    try {
+      final result = await NetworkHelper().storeAssessment(
+        childId: childId,
+        scores: scores,
+        category: 'TDSC',
+      );
+      print('result $result');
+      if (result['data'] is Map) {
+        resultData = (result['data'] as Map).cast<String, dynamic>();
+      }
+      apiMessage = result['message']?.toString();
+
+      final apiPercentage = resultData?['percentage'];
+      if (apiPercentage is num) {
+        scoreForResults = apiPercentage.toDouble();
+      } else if (apiPercentage is String) {
+        scoreForResults = double.tryParse(apiPercentage) ?? scoreForResults;
+      }
+    } catch (_) {
+      // Ignore failures for now; still navigate to results.
+    }
+
+    if (!mounted) return;
+    Get.toNamed(AppRoutes.results, arguments: {
+      'type': 'TDSC',
+      'answers': _answers,
+      'score': scoreForResults,
+      'interpretation': apiMessage ?? 'Results have been recorded.',
+      'resultData': resultData,
+
+    });
   }
 
   Map<String, dynamic> _calculateScore() {
@@ -359,9 +475,17 @@ class _Domain {
 
 class _Question {
   final String id;
-  final String text;
+  final String questionEnglish;
+  final String questionMalayalam;
   final String ageRange;
-  _Question(this.id, this.text, this.ageRange);
+
+  _Question(
+    this.id,
+    String questionEnglish,
+    this.ageRange, [
+    String? questionMalayalam,
+  ])  : questionEnglish = questionEnglish,
+        questionMalayalam = questionMalayalam ?? questionEnglish;
 }
 
 class _QuestionCard extends StatelessWidget {
@@ -440,13 +564,17 @@ class _QuestionCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      question.text,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
-                        height: 1.4,
+                    Obx(
+                      () => Text(
+                        LanguageProvider.to.isEnglish
+                            ? question.questionEnglish
+                            : question.questionMalayalam,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -503,14 +631,16 @@ class _QuestionCard extends StatelessWidget {
                               : AppColors.success,
                         ),
                         SizedBox(width: 6.w),
-                        Text(
-                          'Yes',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            color: answer == true
-                                ? Colors.white
-                                : AppColors.success,
+                        Obx(
+                          () => Text(
+                            LanguageProvider.to.t('yes'),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: answer == true
+                                  ? Colors.white
+                                  : AppColors.success,
+                            ),
                           ),
                         ),
                       ],
@@ -547,14 +677,16 @@ class _QuestionCard extends StatelessWidget {
                               : AppColors.error,
                         ),
                         SizedBox(width: 6.w),
-                        Text(
-                          'No',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            color: answer == false
-                                ? Colors.white
-                                : AppColors.error,
+                        Obx(
+                          () => Text(
+                            LanguageProvider.to.t('no'),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: answer == false
+                                  ? Colors.white
+                                  : AppColors.error,
+                            ),
                           ),
                         ),
                       ],

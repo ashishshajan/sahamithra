@@ -188,41 +188,42 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     const Spacer(),
                     const LanguageSwitcherDark(),
                     SizedBox(width: 12.w),
-                    // Slide counter
-                    Text(
-                      '${_currentSlide + 1}/${_slides.length}',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    if (_currentSlide < _slides.length - 1) ...[
-                      SizedBox(width: 12.w),
-                      GestureDetector(
-                        onTap: _handleSkip,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 6.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.purple100,
-                            borderRadius: BorderRadius.circular(10.r),
-                          ),
-                          child: Obx(
-                            () => Text(
-                              LanguageProvider.to.t('skip'),
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.purple,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    // // Slide counter (e.g. 1/4) — hidden per request
+                    // Text(
+                    //   '${_currentSlide + 1}/${_slides.length}',
+                    //   style: TextStyle(
+                    //     fontSize: 13.sp,
+                    //     fontWeight: FontWeight.w500,
+                    //     color: AppColors.textSecondary,
+                    //   ),
+                    // ),
+                    // // Skip button — hidden per request
+                    // if (_currentSlide < _slides.length - 1) ...[
+                    //   SizedBox(width: 12.w),
+                    //   GestureDetector(
+                    //     onTap: _handleSkip,
+                    //     child: Container(
+                    //       padding: EdgeInsets.symmetric(
+                    //         horizontal: 12.w,
+                    //         vertical: 6.h,
+                    //       ),
+                    //       decoration: BoxDecoration(
+                    //         color: AppColors.purple100,
+                    //         borderRadius: BorderRadius.circular(10.r),
+                    //       ),
+                    //       child: Obx(
+                    //         () => Text(
+                    //           LanguageProvider.to.t('skip'),
+                    //           style: TextStyle(
+                    //             fontSize: 13.sp,
+                    //             fontWeight: FontWeight.w500,
+                    //             color: AppColors.purple,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ],
                   ],
                 ),
               ),

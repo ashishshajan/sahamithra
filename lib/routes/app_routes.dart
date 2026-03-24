@@ -23,10 +23,12 @@ class AppRoutes {
   static const String cdmcServices     = '/cdmc-services';
   static const String teamCollaboration = '/team-collaboration';
   static const String appointments     = '/appointments';
+  static const String appointmentHistory = '/appointment-history';
   static const String reports          = '/reports';
   static const String reminders        = '/reminders';
   static const String feedback         = '/feedback';
   static const String dataPrivacy      = '/data-privacy';
   static const String therapistDashboard = '/therapist-dashboard';
   static const String activityLibrary    = '/activity-library';
+  static const String account            = '/account';
 }

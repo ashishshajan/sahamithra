@@ -28,12 +28,14 @@ import '../screens/institution_finder_screen.dart';
 import '../screens/cdmc_services_screen.dart';
 import '../screens/team_collaboration_screen.dart';
 import '../screens/appointment_booking_screen.dart';
+import '../screens/appointment_history_screen.dart';
 import '../screens/reports_screen.dart';
 import '../screens/reminders_screen.dart';
 import '../screens/feedback_submission_screen.dart';
 import '../screens/data_privacy_screen.dart';
 import '../screens/therapist_dashboard_screen.dart';
 import '../screens/activity_library_screen.dart';
+import '../screens/account_screen.dart';
 
 import 'app_routes.dart';
 
@@ -72,6 +74,11 @@ class AppPages {
       name: AppRoutes.dashboard,
       page: () => const DashboardScreen(),
       transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: AppRoutes.account,
+      page: () => const AccountScreen(),
+      transition: Transition.cupertino,
     ),
     GetPage(
       name: AppRoutes.publicDashboard,
@@ -161,6 +168,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.appointments,
       page: () => const AppointmentBookingScreen(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: AppRoutes.appointmentHistory,
+      page: () => const AppointmentHistoryScreen(),
       transition: Transition.cupertino,
     ),
     GetPage(

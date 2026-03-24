@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
+import '../core/network/network_helper.dart';
+import '../providers/language_provider.dart';
 import '../widgets/gradient_button.dart';
 import '../widgets/standard_footer.dart';
 
@@ -19,7 +21,7 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
   int _current = 0;
   final Map<int, int> _answers = {};
 
-  static const List<String> _questions = [
+  static const List<String> _fallbackQuestions = [
     'I feel overwhelmed by my parenting responsibilities',
     'I feel stressed about my child\'s development',
     'I have difficulty managing my child\'s behavior',
@@ -30,6 +32,10 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
     'I struggle to find time for self-care',
   ];
 
+  List<_StressQuestion> _questions = _fallbackQuestions
+      .map((q) => _StressQuestion(questionEnglish: q, questionMalayalam: q))
+      .toList();
+
   static const List<_Option> _options = [
     _Option(1, 'Strongly Disagree'),
     _Option(2, 'Disagree'),
@@ -38,7 +44,8 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
     _Option(5, 'Strongly Agree'),
   ];
 
-  double get _progress => (_current + 1) / _questions.length;
+  double get _progress =>
+      _questions.isEmpty ? 0 : (_current + 1) / _questions.length;
 
   void _handleAnswer(int value) {
     setState(() {
@@ -50,6 +57,15 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
   }
 
   void _complete() {
+    if (_questions.isEmpty) {
+      Get.toNamed('/results', arguments: {
+        'type': 'Parental Stress',
+        'answers': _answers,
+        'score': 0,
+        'interpretation': 'No questions available',
+      });
+      return;
+    }
     final total = _answers.values.fold(0, (s, v) => s + v);
     final max = _questions.length * 5;
     final pct = (total / max) * 100;
@@ -72,6 +88,48 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    final result =
+        await NetworkHelper().fetchScalesQuestions(category: 'PARENTAL_STRESS');
+    if (!mounted) return;
+
+    if (result['success'] != true) return;
+
+    final payload = result['data'];
+    final questionsRaw = payload is Map ? payload['data'] : null;
+    if (questionsRaw is! List) return;
+
+    final fetched = questionsRaw
+        .whereType<Map>()
+        .map((q) {
+          final english =
+              (q['question_english'] ?? q['question_malayalam'] ?? '').toString();
+          final malayalam =
+              (q['question_malayalam'] ?? q['question_english'] ?? english).toString();
+          return _StressQuestion(
+            questionEnglish: english,
+            questionMalayalam: malayalam,
+          );
+        })
+        .where((s) =>
+            s.questionEnglish.isNotEmpty || s.questionMalayalam.isNotEmpty)
+        .toList();
+
+    if (fetched.isEmpty) return;
+
+    setState(() {
+      _answers.clear();
+      _current = 0;
+      _questions = fetched.cast<_StressQuestion>();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final answered = _answers.containsKey(_current);
     final isLast = _current == _questions.length - 1;
@@ -80,9 +138,12 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          // Header
+          // Header (brand gradient like weekly therapy / other inner screens)
           Container(
-            decoration: const BoxDecoration(color: AppColors.purple600),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: AppColors.primaryGradient,
+            ),
             child: SafeArea(
               bottom: false,
               child: Padding(
@@ -170,12 +231,16 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
                               fontWeight: FontWeight.w500),
                         ),
                         SizedBox(height: 8.h),
-                        Text(
-                          _questions[_current],
-                          style: TextStyle(
-                            fontSize: 17.sp,
-                            color: AppColors.textPrimary,
-                            height: 1.4,
+                        Obx(
+                          () => Text(
+                            LanguageProvider.to.isEnglish
+                                ? _questions[_current].questionEnglish
+                                : _questions[_current].questionMalayalam,
+                            style: TextStyle(
+                              fontSize: 17.sp,
+                              color: AppColors.textPrimary,
+                              height: 1.4,
+                            ),
                           ),
                         ),
                         SizedBox(height: 20.h),
@@ -310,6 +375,16 @@ class _ParentalStressScreenState extends State<ParentalStressScreen> {
       ),
     );
   }
+}
+
+class _StressQuestion {
+  const _StressQuestion({
+    required this.questionEnglish,
+    required this.questionMalayalam,
+  });
+
+  final String questionEnglish;
+  final String questionMalayalam;
 }
 
 class _Option {

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import '../core/global_utils.dart';
+import '../core/network/network_helper.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
+import '../models/video_item.dart';
 import '../widgets/gradient_header.dart';
 import '../widgets/standard_footer.dart';
+import 'videos_list_screen.dart';
 
 /// Mirrors /components/TherapyVideosScreen.tsx
 class TherapyVideosScreen extends StatefulWidget {
@@ -16,86 +20,209 @@ class TherapyVideosScreen extends StatefulWidget {
 
 class _TherapyVideosScreenState extends State<TherapyVideosScreen>
     with SingleTickerProviderStateMixin {
-  late TabController _tab;
+  TabController? _tabController;
+  bool _isLoading = true;
+  String? _error;
 
-  static const List<_TabDef> _tabs = [
-    _TabDef('Physio', 'physiotherapy'),
-    _TabDef('Development', 'developmental'),
-    _TabDef('Speech', 'speech'),
-    _TabDef('Special Ed', 'special'),
-    _TabDef('Medical', 'medical'),
-    _TabDef('Psychology', 'psychology'),
-  ];
-
-  static const Map<String, List<_VideoModule>> _modules = {
-    'physiotherapy': [
-      _VideoModule('Mission Mobility and Control', '3–4 min', 12,
-          'Neck control, crawling, sitting'),
-      _VideoModule('Sitting Balance & Transition', '3–4 min', 5,
-          'Core stability, transitions'),
-      _VideoModule('Standing Control & Balance', '3–4 min', 4,
-          'Standing with support'),
-      _VideoModule('Early Walking Training', '3–4 min', 4,
-          'Gait training, ambulation'),
-    ],
-    'developmental': [
-      _VideoModule('Blossoming Beginnings (2–9 months)', '3–4 min', 6,
-          'Tummy time, grasping, tracking'),
-      _VideoModule('First Steps of Independence (12–18 months)', '3–4 min', 7,
-          'Walking, scribbling, self-feeding'),
-      _VideoModule('Exploring the World (2–2.6 years)', '3–4 min', 8,
-          'Running, pretend play, sorting'),
-      _VideoModule('Growing Together (3 years)', '3–4 min', 8,
-          'Jumping, cooperative play, counting'),
-    ],
-    'speech': [
-      _VideoModule('General Awareness', '4–5 min', 1,
-          'Speech milestones for parents'),
-      _VideoModule('Tiny Talks: Development', '4–5 min', 1,
-          'Vocalizations, first words'),
-      _VideoModule('Nurturing Language', '4–5 min', 4,
-          'Vocabulary growth techniques'),
-      _VideoModule('Fostering Communication', '4–5 min', 13,
-          'Pronouns, verbs, commands'),
-    ],
-    'special': [
-      _VideoModule('Focus Power — Attention & Thinking', '3–6 min', 5,
-          'Focus games, problem-solving'),
-      _VideoModule('Little Voices — Language Growth', '3–6 min', 2,
-          'Speech boosters, storytelling'),
-      _VideoModule('Growing Together — Social Skills', '3–6 min', 2,
-          'Play therapy, emotions'),
-      _VideoModule('Pre-Academic Skills', '3–6 min', 6,
-          'Pre-reading, writing, maths'),
-    ],
-    'medical': [
-      _VideoModule('General Awareness', '3–5 min', 5,
-          'Anemia, vitamin deficiency, thyroid'),
-      _VideoModule('Parenting Techniques', '3–5 min', 9,
-          'Quality time, screen usage, hygiene'),
-      _VideoModule('Syndromic Diseases', '3–5 min', 1,
-          'Understanding syndromes'),
-    ],
-    'psychology': [
-      _VideoModule('Understanding Early Development', '3–5 min', 5,
-          'Normal vs delayed development'),
-      _VideoModule('Neurodevelopmental Disorders', '3–5 min', 6,
-          'Autism, ADHD, cerebral palsy'),
-      _VideoModule('Core Psychological Areas', '3–5 min', 13,
-          'Cognitive, behavioral, emotional'),
-    ],
-  };
+  // Filled from `getPatientLibraries` response.
+  List<_TabDef> _tabs = [];
+  Map<String, List<_VideoModule>> _modules = {};
 
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: _tabs.length, vsync: this);
+    _loadLibraries();
   }
 
   @override
   void dispose() {
-    _tab.dispose();
+    _tabController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadLibraries() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    final childId = GlobalUtils().childId;
+
+    if (childId == null) {
+      setState(() {
+        _isLoading = false;
+        _error = 'Child id not found';
+      });
+      return;
+    }
+
+    final result = await NetworkHelper().getPatientLibraries(
+      childId: childId,
+      viewMode: 'patient',
+    );
+
+    if (!mounted) return;
+
+    if (result['success'] != true) {
+      setState(() {
+        _isLoading = false;
+        _error = result['message'] ?? 'Failed to load libraries';
+      });
+      return;
+    }
+
+    final data = result['data']['data'];
+    print('Therapy video lists data ${data}');
+    if (data is! List) {
+      setState(() {
+        _isLoading = false;
+        _error = 'No videos found for you!';
+      });
+      return;
+    }
+
+    final List<_TabDef> newTabs = [];
+    final Map<String, List<_VideoModule>> newModules = {};
+
+    for (final item in data) {
+      if (item is! Map) continue;
+      for (final entry in item.entries) {
+        final categoryLabel = entry.key.toString(); // e.g. "Medical"
+        if (entry.value is! Map) continue;
+
+        final categoryMap = entry.value as Map;
+        final categoryId = categoryMap['therapy_category_id'];
+        final therapyPlansRaw = categoryMap['therapy_plans'];
+        if (categoryId == null || therapyPlansRaw is! Map) continue;
+
+        final categoryIdStr = categoryId.toString();
+        newTabs.add(_TabDef(categoryLabel, categoryIdStr));
+
+        final List<_VideoModule> modulesForCategory = [];
+        for (final planEntry in therapyPlansRaw.entries) {
+          final planMap = planEntry.value;
+          if (planMap is! Map) continue;
+
+          final therapyName =
+              (planMap['therapy_name'] ?? planEntry.key).toString();
+          final videosRaw = planMap['videos'];
+          final List<VideoItem> videoItems = [];
+          final avgDuration = planMap['average_duration']?.toString() ?? '';
+          final planDescription = planMap['description']?.toString() ?? '';
+
+          if (videosRaw is Map) {
+            for (final videoEntry in videosRaw.entries) {
+              final videoValue = videoEntry.value;
+
+              // New model: "videos": { "<key>": [ {videoObj}, ... ] }
+              if (videoValue is List) {
+                for (final element in videoValue) {
+                  if (element is! Map) continue;
+                  final v = element;
+
+                  final videoUrl = v['video_url']?.toString();
+                  if (videoUrl == null || videoUrl.isEmpty) continue;
+
+                  final sessionId = v['session_id'] is int
+                      ? v['session_id'] as int
+                      : int.tryParse('${v['session_id'] ?? ''}');
+                  final therapyId = v['therapy_id'] is int
+                      ? v['therapy_id'] as int
+                      : int.tryParse('${v['therapy_id'] ?? ''}');
+                  final watchStatus = v['watch_status'] is int
+                      ? v['watch_status'] as int
+                      : int.tryParse('${v['watch_status'] ?? ''}');
+                  final duration = v['duration']?.toString();
+
+                  videoItems.add(
+                    VideoItem(
+                      sessionId: sessionId,
+                      therapyId: therapyId,
+                      sessionName:
+                          v['session_name']?.toString() ?? videoEntry.key.toString(),
+                      instruction: v['instruction']?.toString() ?? '',
+                      videoUrl: videoUrl,
+                      thumbnailUrl: v['thumbnail_url']?.toString(),
+                      watchStatus: watchStatus,
+                      duration: duration,
+                    ),
+                  );
+                }
+                continue;
+              }
+
+              // Backward compatibility: old model could be
+              // "videos": { "<key>": { ...videoObj } }
+              if (videoValue is Map) {
+                final v = videoValue;
+                final videoUrl = v['video_url']?.toString();
+                if (videoUrl == null || videoUrl.isEmpty) continue;
+
+                final sessionId = v['session_id'] is int
+                    ? v['session_id'] as int
+                    : int.tryParse('${v['session_id'] ?? ''}');
+                final therapyId = v['therapy_id'] is int
+                    ? v['therapy_id'] as int
+                    : int.tryParse('${v['therapy_id'] ?? ''}');
+                final watchStatus = v['watch_status'] is int
+                    ? v['watch_status'] as int
+                    : int.tryParse('${v['watch_status'] ?? ''}');
+                final duration = v['duration']?.toString();
+
+                  videoItems.add(
+                    VideoItem(
+                    sessionId: sessionId,
+                    therapyId: therapyId,
+                    sessionName:
+                        v['session_name']?.toString() ?? videoEntry.key.toString(),
+                    instruction: v['instruction']?.toString() ?? '',
+                    videoUrl: videoUrl,
+                    thumbnailUrl: v['thumbnail_url']?.toString(),
+                    watchStatus: watchStatus,
+                    duration: duration,
+                  ),
+                );
+              }
+            }
+          }
+
+          // Per instruction: _videoModule('{therapy_name}, '','','','') dummy values.
+          final int videosCount = videoItems.length;
+          modulesForCategory.add(
+            _VideoModule(
+              title: therapyName,
+              duration: avgDuration,
+              videos: videosCount,
+              videoItems: videoItems,
+              description: planDescription,
+            ),
+          );
+        }
+
+        newModules[categoryIdStr] = modulesForCategory;
+      }
+    }
+
+    if (newTabs.isEmpty) {
+      setState(() {
+        _tabs = [];
+        _modules = {};
+        _isLoading = false;
+        _error = 'No libraries found';
+      });
+      return;
+    }
+
+    setState(() {
+      _tabs = newTabs;
+      _modules = newModules;
+      _isLoading = false;
+      _tabController?.dispose();
+      _tabController = TabController(
+        length: _tabs.length,
+        vsync: this,
+      );
+    });
   }
 
   @override
@@ -111,37 +238,68 @@ class _TherapyVideosScreenState extends State<TherapyVideosScreen>
           ),
 
           // Tab bar
-          Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: _tab,
-              isScrollable: true,
-              labelColor: AppColors.purple,
-              unselectedLabelColor: AppColors.textTertiary,
-              indicatorColor: AppColors.purple,
-              labelStyle: TextStyle(
-                  fontSize: 12.sp, fontWeight: FontWeight.w600),
-              unselectedLabelStyle: TextStyle(fontSize: 12.sp),
-              tabs: _tabs
-                  .map((t) => Tab(text: t.label))
-                  .toList(),
+          if (_isLoading)
+            const SizedBox.shrink()
+          else if (_error != null)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              child: Text(
+                _error!,
+                style: TextStyle(color: AppColors.error, fontSize: 14.sp),
+              ),
+            )
+          else if (_tabs.isNotEmpty && _tabController != null)
+            Container(
+              color: Colors.white,
+              child: TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                labelColor: AppColors.purple,
+                unselectedLabelColor: AppColors.textTertiary,
+                indicatorColor: AppColors.purple,
+                labelStyle: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+                unselectedLabelStyle: TextStyle(fontSize: 12.sp),
+                tabs: _tabs.map((t) => Tab(text: t.label)).toList(),
+              ),
             ),
-          ),
-          Container(height: 1, color: AppColors.neutral200),
+          if (!_isLoading && _tabs.isNotEmpty) Container(height: 1, color: AppColors.neutral200),
 
           Expanded(
-            child: TabBarView(
-              controller: _tab,
-              children: _tabs.map((t) {
-                final modules = _modules[t.key] ?? [];
-                return ListView.separated(
-                  padding: EdgeInsets.all(AppSpacing.base.r),
-                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
-                  itemCount: modules.length,
-                  itemBuilder: (_, i) => _VideoModuleCard(module: modules[i]),
-                );
-              }).toList(),
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? Center(
+                        child: ElevatedButton(
+                          onPressed: _loadLibraries,
+                          child: const Text('Retry'),
+                        ),
+                      )
+                    : (_tabs.isEmpty || _tabController == null)
+                        ? Center(
+                            child: Text(
+                              _error ?? 'No libraries found',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          )
+                    : TabBarView(
+                        controller: _tabController!,
+                        children: _tabs.map((t) {
+                          final modules = _modules[t.key] ?? [];
+                          return ListView.separated(
+                            padding: EdgeInsets.all(AppSpacing.base.r),
+                            separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                            itemCount: modules.length,
+                            itemBuilder: (_, i) =>
+                                _VideoModuleCard(module: modules[i]),
+                          );
+                        }).toList(),
+                      ),
           ),
 
           const StandardFooter(),
@@ -158,20 +316,35 @@ class _TabDef {
 }
 
 class _VideoModule {
+  const _VideoModule({
+    required this.title,
+    required this.duration,
+    required this.videos,
+    required this.videoItems,
+    required this.description,
+  });
+
   final String title;
   final String duration;
   final int videos;
+  final List<VideoItem> videoItems;
   final String description;
-  const _VideoModule(
-      this.title, this.duration, this.videos, this.description);
 }
 
-class _VideoModuleCard extends StatelessWidget {
+class _VideoModuleCard extends StatefulWidget {
   const _VideoModuleCard({required this.module});
   final _VideoModule module;
 
   @override
+  State<_VideoModuleCard> createState() => _VideoModuleCardState();
+}
+
+class _VideoModuleCardState extends State<_VideoModuleCard> {
+  bool _isNavigating = false;
+
+  @override
   Widget build(BuildContext context) {
+    final module = widget.module;
     return Container(
       padding: EdgeInsets.all(AppSpacing.base.r),
       decoration: BoxDecoration(
@@ -255,7 +428,18 @@ class _VideoModuleCard extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           GestureDetector(
-            onTap: () {},
+            onTap: (module.videoItems.isEmpty || _isNavigating)
+                ? null
+                : () async {
+                    setState(() => _isNavigating = true);
+                    await Get.to(
+                      () => VideosListScreen(
+                        title: module.title,
+                        videoItems: module.videoItems,
+                      ),
+                    );
+                    if (mounted) setState(() => _isNavigating = false);
+                  },
             child: Container(
               height: 40.h,
               decoration: BoxDecoration(

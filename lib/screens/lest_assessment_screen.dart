@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
+import '../core/network/network_helper.dart';
+import '../providers/language_provider.dart';
 import '../widgets/gradient_button.dart';
 import '../widgets/gradient_header.dart';
 import '../widgets/standard_footer.dart';
@@ -21,7 +23,10 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
   int _currentSection = 0;
   final Map<String, bool?> _answers = {};
 
-  final List<_Section> _sections = [
+  bool _isLoading = false;
+  String? _error;
+
+  List<_Section> _sections = [
     _Section(
       name: 'Pre-Linguistic',
       subtitle: '0–12 months',
@@ -107,6 +112,72 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    final result = await NetworkHelper().fetchScalesQuestions(category: 'LEST');
+    if (!mounted) return;
+
+    if (result['success'] != true) {
+      setState(() {
+        _isLoading = false;
+        _error = result['message'] ?? 'Failed to load questions';
+      });
+      return;
+    }
+
+    final payload = result['data'];
+    final questionsRaw = payload is Map ? payload['data'] : null;
+    if (questionsRaw is! List) {
+      setState(() {
+        _isLoading = false;
+        _error = 'Unexpected response format';
+      });
+      return;
+    }
+
+    final questions = questionsRaw
+        .whereType<Map>()
+        .map((q) {
+          final id = q['id']?.toString() ?? '';
+          final englishText = (q['question_english'] ?? q['question_malayalam'] ?? '').toString();
+          final malayalamText = (q['question_malayalam'] ?? q['question_english'] ?? englishText).toString();
+          return _LQuestion(id, englishText, '', malayalamText);
+        })
+        .where((q) => q.id.isNotEmpty)
+        .toList();
+
+    if (questions.isEmpty) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    setState(() {
+      _answers.clear();
+      _currentSection = 0;
+      _sections = [
+        _Section(
+          name: 'LEST',
+          subtitle: '',
+          icon: Icons.hearing_rounded,
+          color: AppColors.blue600,
+          bgColor: AppColors.blue100,
+          questions: questions,
+        ),
+      ];
+      _isLoading = false;
+    });
+  }
+
   Map<String, dynamic> _calcScore() {
     final yes = _answers.values.where((v) => v == true).length;
     final total = _answers.length;
@@ -122,6 +193,12 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading && _sections.isEmpty) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
@@ -331,8 +408,21 @@ class _Section {
 }
 
 class _LQuestion {
-  final String id, text, ageRange;
-  _LQuestion(this.id, this.text, this.ageRange);
+  final String id;
+  final String questionEnglish;
+  final String questionMalayalam;
+  final String ageRange;
+
+  // Backward-compatible constructor:
+  // - Existing hardcoded questions pass (id, text, ageRange) where `text` is English.
+  // - API-backed questions can pass (id, english, ageRange, malayalam).
+  _LQuestion(
+    this.id,
+    String questionEnglish,
+    this.ageRange, [
+    String? questionMalayalam,
+  ])  : questionEnglish = questionEnglish,
+        questionMalayalam = questionMalayalam ?? questionEnglish;
 }
 
 class _LQuestionCard extends StatelessWidget {
@@ -398,11 +488,18 @@ class _LQuestionCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(question.text,
+                    Obx(
+                      () => Text(
+                        LanguageProvider.to.isEnglish
+                            ? question.questionEnglish
+                            : question.questionMalayalam,
                         style: TextStyle(
-                            fontSize: 13.sp,
-                            color: AppColors.textPrimary,
-                            height: 1.4)),
+                          fontSize: 13.sp,
+                          color: AppColors.textPrimary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 4.h),
                     Text(question.ageRange,
                         style: TextStyle(
@@ -416,14 +513,14 @@ class _LQuestionCard extends StatelessWidget {
           Row(
             children: [
               _AnswerBtn(
-                  label: 'Yes',
+                  labelKey: 'yes',
                   icon: Icons.check_circle_rounded,
                   selected: answer == true,
                   activeColor: AppColors.success,
                   onTap: () => onAnswer(true)),
               SizedBox(width: 8.w),
               _AnswerBtn(
-                  label: 'No',
+                  labelKey: 'no',
                   icon: Icons.cancel_rounded,
                   selected: answer == false,
                   activeColor: AppColors.error,
@@ -438,14 +535,14 @@ class _LQuestionCard extends StatelessWidget {
 
 class _AnswerBtn extends StatelessWidget {
   const _AnswerBtn({
-    required this.label,
+    required this.labelKey,
     required this.icon,
     required this.selected,
     required this.activeColor,
     required this.onTap,
   });
 
-  final String label;
+  final String labelKey;
   final IconData icon;
   final bool selected;
   final Color activeColor;
@@ -474,12 +571,16 @@ class _AnswerBtn extends StatelessWidget {
                   size: 16.sp,
                   color: selected ? Colors.white : activeColor),
               SizedBox(width: 6.w),
-              Text(label,
+              Obx(
+                () => Text(
+                  LanguageProvider.to.t(labelKey),
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: selected ? Colors.white : activeColor,
-                  )),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

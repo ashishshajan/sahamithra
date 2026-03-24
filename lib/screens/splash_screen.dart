@@ -180,10 +180,15 @@ class _SplashScreenState extends State<SplashScreen>
         final utils = GlobalUtils();
         if (utils.isLoggedIn && utils.token != null) {
           // Attempt to refresh user data on launch
-          final initResult = await NetworkHelper().getInit(utils.token!);
+          final initResult = await NetworkHelper().getInit();
           if (initResult['success']) {
             print('Get init response inside splash screen ${initResult['data']}');
-            await utils.setUserData(initResult['data']);
+              final initData = initResult['data'];
+              if (initData is Map<String, dynamic>) {
+                await utils.setInitUserAndFirstChild(initData);
+              } else if (initData is Map) {
+                await utils.setUserData(initData.cast<String, dynamic>());
+              }
             Get.offAllNamed(AppRoutes.dashboard);
           }
           else{

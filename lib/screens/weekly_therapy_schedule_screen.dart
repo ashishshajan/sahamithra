@@ -50,9 +50,12 @@ class _WeeklyTherapyScheduleScreenState
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          // Header
+          // Header (brand gradient like other inner screens)
           Container(
-            color: const Color(0xFF4338CA),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: AppColors.primaryGradient,
+            ),
             child: SafeArea(
               bottom: false,
               child: Padding(
@@ -132,7 +135,7 @@ class _WeeklyTherapyScheduleScreenState
                                     style: TextStyle(
                                       fontSize: 11.sp,
                                       color: selected
-                                          ? const Color(0xFF4338CA)
+                                          ? AppColors.purple
                                           : Colors.white,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -144,7 +147,7 @@ class _WeeklyTherapyScheduleScreenState
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.w700,
                                       color: selected
-                                          ? const Color(0xFF4338CA)
+                                          ? AppColors.purple
                                           : Colors.white,
                                     ),
                                   ),
@@ -154,7 +157,7 @@ class _WeeklyTherapyScheduleScreenState
                                       style: TextStyle(
                                         fontSize: 9.sp,
                                         color: selected
-                                            ? const Color(0xFF4338CA)
+                                            ? AppColors.purple
                                             : Colors.white.withOpacity(0.85),
                                       ),
                                     ),
@@ -208,7 +211,7 @@ class _WeeklyTherapyScheduleScreenState
                         padding: EdgeInsets.symmetric(
                             horizontal: 12.w, vertical: 6.h),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4338CA),
+                          gradient: AppColors.primaryGradient,
                           borderRadius: BorderRadius.circular(AppRadius.full),
                         ),
                         child: Text('$completed/${activities.length}',
@@ -360,13 +363,14 @@ class _ActivityCard extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                           horizontal: 8.w, vertical: 3.h),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE0E7FF),
+                        gradient: AppColors.primaryGradient,
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                       child: Text(activity.type,
                           style: TextStyle(
                               fontSize: 10.sp,
-                              color: const Color(0xFF4338CA))),
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600)),
                     ),
                     SizedBox(width: 8.w),
                     Icon(Icons.access_time_rounded,

@@ -220,24 +220,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 64.r,
                               height: 64.r,
                               fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                width: 64.r,
-                                height: 64.r,
-                                decoration: BoxDecoration(
-                                  gradient: AppColors.primaryGradient,
-                                  borderRadius: BorderRadius.circular(12.r),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'S',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 28.sp,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              // errorBuilder: (context, error, stackTrace) => Container(
+                              //   width: 64.r,
+                              //   height: 64.r,
+                              //   decoration: BoxDecoration(
+                              //     gradient: AppColors.primaryGradient,
+                              //     borderRadius: BorderRadius.circular(12.r),
+                              //   ),
+                              
+                              // ),
                             ),
                           ),
                         ],
@@ -489,6 +480,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           Text('Mobile Number', style: AppTextStyles.h3),
           SizedBox(height: 8.h),
           Row(

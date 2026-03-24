@@ -12,14 +12,66 @@ class ResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final args = (Get.arguments as Map<String, dynamic>?) ?? {};
-    final type = args['type'] as String? ?? 'Assessment';
-    final score = (args['score'] as num?)?.toDouble() ?? 85.0;
-    final interpretation =
-        args['interpretation'] as String? ?? 'Results have been recorded.';
-    final riskCount = args['riskCount'] as int?;
+    // `Get.arguments` can be null / not the expected type when a route is opened
+    // directly. Use safe parsing + dummy defaults.
+    final rawArgs = Get.arguments;
+    final Map<String, dynamic> args = <String, dynamic>{};
+    if (rawArgs is Map) {
+      rawArgs.forEach((key, value) {
+        args[key.toString()] = value;
+      });
+    }
 
-    final zone = _getZone(type, score, riskCount);
+    final type = args['type'] is String ? args['type'] as String : 'Assessment';
+
+    // API response uses `percentage` for TDSC.
+    final dynamic rawScore = args['score'];
+    final double parsedScore = rawScore is num
+        ? rawScore.toDouble()
+        : rawScore is String
+            ? (double.tryParse(rawScore) ?? 85.0)
+            : 85.0;
+
+    final dynamic resultDataRaw = args['resultData'];
+    final Map<String, dynamic>? resultData =
+        resultDataRaw is Map ? (resultDataRaw as Map).cast<String, dynamic>() : null;
+
+    // zone_label / zone_color can come either top-level or inside `resultData`.
+    final dynamic zoneLabelRaw =
+        args['zone_label'] ?? args['zoneLabel'] ?? resultData?['zone_label'];
+    final dynamic zoneColorRaw =
+        args['zone_color'] ?? args['zoneColor'] ?? resultData?['zone_color'];
+
+    final String? zoneLabel = zoneLabelRaw?.toString();
+    final String? zoneColorStr = zoneColorRaw?.toString();
+
+    final double score = (() {
+      final dynamic apiPercentage = resultData?['percentage'];
+      if (apiPercentage is num) return apiPercentage.toDouble();
+      if (apiPercentage is String) {
+        return double.tryParse(apiPercentage) ?? parsedScore;
+      }
+      return parsedScore;
+    })();
+
+    final interpretation = (args['interpretation'] is String)
+        ? args['interpretation'] as String
+        : (resultData?['zone_label'] != null
+            ? 'Results saved successfully'
+            : 'Results have been recorded.');
+
+    final riskCountRaw = args['riskCount'];
+    final int? riskCount = riskCountRaw is int
+        ? riskCountRaw
+        : riskCountRaw is num
+            ? riskCountRaw.toInt()
+            : riskCountRaw is String
+                ? int.tryParse(riskCountRaw)
+                : null;
+
+    final zone = (zoneLabel != null || zoneColorStr != null)
+        ? _getZoneFromApi(zoneLabel, zoneColorStr)
+        : _getZone(type, score, riskCount);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -366,4 +418,34 @@ class _ZoneLegend {
   final Color color;
   final String text;
   const _ZoneLegend(this.color, this.text);
+}
+
+_ZoneInfo _getZoneFromApi(String? zoneLabel, String? zoneColor) {
+  // Map API `zone_color` to UI colors.
+  final color = (() {
+    final z = zoneColor?.toLowerCase().trim();
+    if (z == null) return AppColors.success;
+    if (z == 'green') return AppColors.success;
+    if (z == 'yellow') return AppColors.warning;
+    if (z == 'orange') return AppColors.orange600;
+    if (z == 'red') return AppColors.error;
+    // Unknown string: fallback to success.
+    return AppColors.success;
+  })();
+
+  final label = zoneLabel ?? 'Assessment Results';
+
+  // Keep description aligned with what the API gives us.
+  final description = zoneLabel ?? 'Normal Development';
+
+  final icon = (() {
+    final z = zoneColor?.toLowerCase().trim();
+    if (z == 'green') return Icons.check_circle_rounded;
+    if (z == 'yellow') return Icons.info_rounded;
+    if (z == 'orange') return Icons.warning_rounded;
+    if (z == 'red') return Icons.warning_amber_rounded;
+    return Icons.check_circle_rounded;
+  })();
+
+  return _ZoneInfo(color, label, description, icon);
 }

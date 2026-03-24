@@ -5,6 +5,8 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../providers/app_provider.dart';
 import '../providers/language_provider.dart';
+import '../core/global_utils.dart';
+import '../core/network/network_helper.dart';
 import '../widgets/language_switcher.dart';
 import '../widgets/logo_widget.dart';
 import '../widgets/standard_footer.dart';
@@ -30,6 +32,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _showProfileMenu = false;
   int _navIndex = 0;
   Map<String, dynamic>? _userData;
+
+  void _handleLogout() {
+    _doLogout();
+  }
+
+  Future<void> _doLogout() async {
+    try {
+      final result = await NetworkHelper().logout();
+
+      // Regardless of server response, clear local session and go to login.
+      await GlobalUtils().logout();
+      if (!mounted) return;
+      Get.offAllNamed(AppRoutes.login);
+    } catch (_) {
+      await GlobalUtils().logout();
+      if (!mounted) return;
+      Get.offAllNamed(AppRoutes.login);
+    }
+  }
 
   @override
   void initState() {
@@ -118,7 +139,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               top: MediaQuery.of(context).padding.top + 56.h,
               child: _ProfileDropdown(
                 onDismiss: () => setState(() => _showProfileMenu = false),
-                onLogout: () => Get.offAllNamed(AppRoutes.login),
+                onLogout: () {
+                  setState(() => _showProfileMenu = false);
+                  _handleLogout();
+                },
               ),
             ),
           ],
@@ -527,8 +551,11 @@ class _ProfileDropdown extends StatelessWidget {
           children: [
             _DropdownItem(
               icon: Icons.settings_rounded,
-              label: 'Settings',
-              onTap: onDismiss,
+              label: 'Profile',
+              onTap: () {
+                onDismiss();
+                Get.toNamed(AppRoutes.account);
+              },
             ),
             _DropdownItem(
               icon: Icons.help_outline_rounded,

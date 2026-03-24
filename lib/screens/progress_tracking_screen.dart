@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:sahamitra1_0/widgets/gradient_header.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../providers/app_provider.dart';
@@ -40,13 +41,12 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            const StandardHeader(
-              showLogo: true,
+            // Header (back matches other StandardHeader screens, e.g. registration)
+            GradientHeader(
+              onBack: () => Get.back(),
               title: 'Progress Tracking',
               subtitle: "Track your child's developmental progress",
             ),
-
             // Period selector
             _buildPeriodSelector(),
 
