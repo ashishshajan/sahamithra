@@ -391,6 +391,38 @@ class NetworkHelper {
     });
   }
 
+  /// Cancel an appointment by id.
+  /// POST `/api/v1/appointments/{id}/cancel` with body `{ "child_id": <id> }`
+  Future<Map<String, dynamic>> cancelAppointment({
+    required int appointmentId,
+    required int childId,
+  }) async {
+    final token = GlobalUtils().token;
+    if (token == null) {
+      return {
+        'success': false,
+        'message': 'Authentication token not found',
+      };
+    }
+
+    final url = Uri.parse('$_baseUrl/appointments/$appointmentId/cancel');
+    return _withAutoRefresh(token, (effectiveToken) async {
+      try {
+        final response = await http.post(
+          url,
+          headers: _getHeaders(token: effectiveToken, isJson: true),
+          body: jsonEncode({
+            'child_id': childId,
+          }),
+        );
+        print('cancelAppointment response ${response.body}');
+        return _handleResponse(response);
+      } catch (e) {
+        return _handleError(e);
+      }
+    });
+  }
+
   // 10. Get Care Team (POST - JSON Raw - Bearer Auth with auto-refresh)
   Future<Map<String, dynamic>> getCareTeam({
     required int childId,

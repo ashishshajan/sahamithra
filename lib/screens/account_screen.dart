@@ -435,14 +435,14 @@ class _AccountScreenState extends State<AccountScreen> {
                                 ],
                               ),
                               SizedBox(height: 4.h),
-                              Text(
-                                email,
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w300,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
+                              // Text(
+                              //   email,
+                              //   style: TextStyle(
+                              //     fontSize: 13.sp,
+                              //     fontWeight: FontWeight.w300,
+                              //     color: AppColors.textSecondary,
+                              //   ),
+                              // ),
                               SizedBox(height: 4.h),
                               Text(
                                 'Parent : $parentLabel',
