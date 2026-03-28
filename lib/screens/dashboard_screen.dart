@@ -132,160 +132,161 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = LanguageProvider.to;
     final app = AppProvider.to;
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundSecondary,
-      body: Stack(
-        children: [
-          // ─── Main Content ──────────────────────────────────────────────
-          Column(
-            children: [
-              // Gradient Header
-              _buildHeader(lang, app),
-
-              // Scrollable content
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    12.w,
-                    12.h,
-                    12.w,
-                    AppSpacing.xl2.h,
-                  ),
-                  children: [
-                    // Progress card
-                    _buildProgressCard(lang, app),
-                    SizedBox(height: 12.h),
-
-                    // Gamification teaser
-                    _buildGamificationCard(lang, app),
-                    SizedBox(height: 12.h),
-
-                    // Weekly schedule
-                    _buildWeeklyScheduleCard(lang, app),
-                    SizedBox(height: AppSpacing.xl.h),
-
-                    // Assessments section
-                    _buildSectionLabel(lang.t('assessments')),
-                    SizedBox(height: AppSpacing.base.h),
-                    _buildAssessmentsList(lang),
-                    SizedBox(height: AppSpacing.xl.h),
-
-                    // Services section
-                    _buildSectionLabel(lang.t('services')),
-                    SizedBox(height: AppSpacing.base.h),
-                    _buildServicesList(lang),
-                  ],
-                ),
-              ),
-
-              // Bottom nav
-              DashboardNavBar(
-                currentIndex: _navIndex,
-                onTap: (i) => setState(() => _navIndex = i),
-              ),
-            ],
-          ),
-
-          // ─── Global Overlays ───────────────────────────────────────────
-          if (_showProfileMenu) ...[
-            // Full-screen dismiss layer
-            GestureDetector(
-              onTap: () => setState(() => _showProfileMenu = false),
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.black.withOpacity(0.05),
-              ),
-            ),
-
-            // Profile dropdown positioned relative to top-right
-            Positioned(
-              right: 16.w,
-              top: MediaQuery.of(context).padding.top + 56.h,
-              child: _ProfileDropdown(
-                onDismiss: () => setState(() => _showProfileMenu = false),
-                onLogout: () {
-                  setState(() => _showProfileMenu = false);
-                  _handleLogout();
-                },
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(LanguageProvider lang, AppProvider app) {
     return Obx(() {
-      return Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const LogoWidget(
-                      size: LogoSize.medium,
-                      showText: true,
-                      withBackground: true,
-                    ),
-                    const Spacer(),
-                    const LanguageSwitcher(),
-                    SizedBox(width: 8.w),
+      final lang = LanguageProvider.to;
 
-                    // Profile button
-                    GestureDetector(
-                      onTap: () =>
-                          setState(() => _showProfileMenu = !_showProfileMenu),
-                      child: Container(
-                        padding: EdgeInsets.all(8.r),
-                        decoration: BoxDecoration(
-                          color: AppColors.white20,
-                          borderRadius: BorderRadius.circular(AppRadius.xl),
-                        ),
-                        child: Icon(
-                          Icons.account_circle_rounded,
-                          size: 20.sp,
-                          color: Colors.white,
-                        ),
-                      ),
+      return Scaffold(
+        backgroundColor: AppColors.backgroundSecondary,
+        body: Stack(
+          children: [
+            // ─── Main Content ──────────────────────────────────────────────
+            Column(
+              children: [
+                // Gradient Header
+                _buildHeader(lang, app),
+
+                // Scrollable content
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      12.w,
+                      12.h,
+                      12.w,
+                      AppSpacing.xl2.h,
                     ),
-                  ],
-                ),
-                SizedBox(height: 12.h),
-                Text(
-                  '${lang.t("welcome")} ${_userData?["parentName"] ?? "Parent"}',
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    children: [
+                      // Progress card
+                      _buildProgressCard(lang, app),
+                      SizedBox(height: 12.h),
+
+                      // Gamification teaser
+                      _buildGamificationCard(lang, app),
+                      SizedBox(height: 12.h),
+
+                      // Weekly schedule
+                      _buildWeeklyScheduleCard(lang, app),
+                      SizedBox(height: AppSpacing.xl.h),
+
+                      // Assessments section
+                      _buildSectionLabel(lang.t('assessments')),
+                      SizedBox(height: AppSpacing.base.h),
+                      _buildAssessmentsList(lang),
+                      SizedBox(height: AppSpacing.xl.h),
+
+                      // Services section
+                      _buildSectionLabel(lang.t('services')),
+                      SizedBox(height: AppSpacing.base.h),
+                      _buildServicesList(lang),
+                    ],
                   ),
                 ),
-                SizedBox(height: 2.h),
-                Text(
-                  lang.t('trackProgress'),
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+
+                // Bottom nav
+                DashboardNavBar(
+                  currentIndex: _navIndex,
+                  onTap: (i) => setState(() => _navIndex = i),
                 ),
               ],
             ),
-          ),
+
+            // ─── Global Overlays ───────────────────────────────────────────
+            if (_showProfileMenu) ...[
+              // Full-screen dismiss layer
+              GestureDetector(
+                onTap: () => setState(() => _showProfileMenu = false),
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black.withOpacity(0.05),
+                ),
+              ),
+
+              // Profile dropdown positioned relative to top-right
+              Positioned(
+                right: 16.w,
+                top: MediaQuery.of(context).padding.top + 56.h,
+                child: _ProfileDropdown(
+                  onDismiss: () => setState(() => _showProfileMenu = false),
+                  onLogout: () {
+                    setState(() => _showProfileMenu = false);
+                    _handleLogout();
+                  },
+                ),
+              ),
+            ],
+          ],
         ),
       );
     });
+  }
+
+  Widget _buildHeader(LanguageProvider lang, AppProvider app) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppColors.primaryGradient,
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const LogoWidget(
+                    size: LogoSize.medium,
+                    showText: true,
+                    withBackground: true,
+                  ),
+                  const Spacer(),
+                  const LanguageSwitcher(),
+                  SizedBox(width: 8.w),
+
+                  // Profile button
+                  GestureDetector(
+                    onTap: () =>
+                        setState(() => _showProfileMenu = !_showProfileMenu),
+                    child: Container(
+                      padding: EdgeInsets.all(8.r),
+                      decoration: BoxDecoration(
+                        color: AppColors.white20,
+                        borderRadius: BorderRadius.circular(AppRadius.xl),
+                      ),
+                      child: Icon(
+                        Icons.account_circle_rounded,
+                        size: 20.sp,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                '${lang.t("welcome")} ${_userData?["parentName"] ?? lang.t("loginTabParent")}',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                lang.t('trackProgress'),
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: Colors.white.withOpacity(0.9),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildProgressCard(LanguageProvider lang, AppProvider app) {
@@ -574,7 +575,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               iconColor: AppColors.purple,
               title: lang.t('parentalStressScale'),
               subtitle: lang.t('selfAssessment'),
-              onTap: () => _navigate(AppRoutes.stress),
+              onTap: () => _navigate(AppRoutes.stressNew),
             ),
             SizedBox(height: 12.h),
             _ServiceCard(
@@ -645,49 +646,52 @@ class _ProfileDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 20,
-      borderRadius: BorderRadius.circular(AppRadius.xl2),
-      child: Container(
-        width: 200.w,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppRadius.xl2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.12),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
+    return Obx(() {
+      final lang = LanguageProvider.to;
+      return Material(
+        elevation: 20,
+        borderRadius: BorderRadius.circular(AppRadius.xl2),
+        child: Container(
+          width: 200.w,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.xl2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _DropdownItem(
+                icon: Icons.settings_rounded,
+                label: lang.t('profile'),
+                onTap: () {
+                  onDismiss();
+                  Get.toNamed(AppRoutes.account);
+                },
+              ),
+              _DropdownItem(
+                icon: Icons.help_outline_rounded,
+                label: lang.t('helpSupport'),
+                onTap: onDismiss,
+              ),
+              Container(height: 1, color: AppColors.neutral100),
+              _DropdownItem(
+                icon: Icons.logout_rounded,
+                label: lang.t('logOut'),
+                color: AppColors.error,
+                onTap: onLogout,
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _DropdownItem(
-              icon: Icons.settings_rounded,
-              label: 'Profile',
-              onTap: () {
-                onDismiss();
-                Get.toNamed(AppRoutes.account);
-              },
-            ),
-            _DropdownItem(
-              icon: Icons.help_outline_rounded,
-              label: 'Help & Support',
-              onTap: onDismiss,
-            ),
-            Container(height: 1, color: AppColors.neutral100),
-            _DropdownItem(
-              icon: Icons.logout_rounded,
-              label: 'Log Out',
-              color: AppColors.error,
-              onTap: onLogout,
-            ),
-          ],
-        ),
-      ),
-    );
+      );
+    });
   }
 }
 

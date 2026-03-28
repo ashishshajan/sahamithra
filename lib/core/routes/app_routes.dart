@@ -12,6 +12,7 @@ abstract class AppRoutes {
   static const String lest              = '/lest';
   static const String results           = '/results';
   static const String stress            = '/stress';
+  static const String stressNew         = '/stress-new';
   static const String risk              = '/risk';
   static const String institutions      = '/institutions';
   static const String videos            = '/videos';

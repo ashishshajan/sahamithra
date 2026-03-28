@@ -37,7 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool _validateIndianMobile(String number) {
-    print('validate number $number');
     final regex = RegExp(r'^[6-9]\d{9}$');
     return regex.hasMatch(number);
   }
@@ -73,7 +72,10 @@ class _LoginScreenState extends State<LoginScreen> {
         _showSnack(lang.t('otpSentSuccess'), isError: false);
         Get.toNamed(AppRoutes.otpVerification, arguments: {'mobile': mobile});
       } else {
-        _showSnack(result['message'] ?? 'An error occurred', isError: true);
+        _showSnack(
+          result['message']?.toString() ?? lang.t('loginErrorGeneric'),
+          isError: true,
+        );
       }
     }
   }
@@ -94,66 +96,63 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: Column(
-        children: [
-          // White Header
-          _buildHeader(),
+    return Obx(() {
+      final lang = LanguageProvider.to;
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        body: Column(
+          children: [
+            _buildHeader(lang),
 
-          // Scrollable content
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFFAF5FF),
-                    Color(0xFFFDF2F8),
-                    Color(0xFFEFF6FF),
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFFAF5FF),
+                      Color(0xFFFDF2F8),
+                      Color(0xFFEFF6FF),
+                    ],
+                  ),
+                ),
+                child: ListView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.base.w,
+                    vertical: AppSpacing.xl.h,
+                  ),
+                  children: [
+                    _buildTabSwitcher(lang),
+                    SizedBox(height: AppSpacing.base.h),
+
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, anim) => FadeTransition(
+                        opacity: anim,
+                        child: child,
+                      ),
+                      child: _activeTab == 'parent'
+                          ? _buildParentTab(lang)
+                          : _buildGuestTab(lang),
+                    ),
+
+                    SizedBox(height: AppSpacing.base.h),
+
+                    _buildFeatureGrid(lang),
                   ],
                 ),
               ),
-              child: ListView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.base.w,
-                  vertical: AppSpacing.xl.h,
-                ),
-                children: [
-                  // Tab switcher
-                  _buildTabSwitcher(),
-                  SizedBox(height: AppSpacing.base.h),
-
-                  // Tab content
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, anim) => FadeTransition(
-                      opacity: anim,
-                      child: child,
-                    ),
-                    child: _activeTab == 'parent'
-                        ? _buildParentTab()
-                        : _buildGuestTab(),
-                  ),
-
-                  SizedBox(height: AppSpacing.base.h),
-
-                  // Feature highlights grid
-                  _buildFeatureGrid(),
-                ],
-              ),
             ),
-          ),
 
-          // Footer
-          _buildBottomFooter(),
-        ],
-      ),
-    );
+            _buildBottomFooter(),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(LanguageProvider lang) {
     return Container(
       color: Colors.white,
       child: SafeArea(
@@ -209,7 +208,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.purple.withValues(alpha: 0.12),
+                                  color:
+                                      AppColors.purple.withValues(alpha: 0.12),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -220,15 +220,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 64.r,
                               height: 64.r,
                               fit: BoxFit.contain,
-                              // errorBuilder: (context, error, stackTrace) => Container(
-                              //   width: 64.r,
-                              //   height: 64.r,
-                              //   decoration: BoxDecoration(
-                              //     gradient: AppColors.primaryGradient,
-                              //     borderRadius: BorderRadius.circular(12.r),
-                              //   ),
-                              
-                              // ),
                             ),
                           ),
                         ],
@@ -238,20 +229,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Obx(
-                              () => Text(
-                                LanguageProvider.to.t('appName'),
-                                style: TextStyle(
-                                  fontSize: 19.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
-                                  letterSpacing: -0.3,
-                                ),
+                            Text(
+                              lang.t('appName'),
+                              style: TextStyle(
+                                fontSize: 19.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                                letterSpacing: -0.3,
                               ),
                             ),
                             SizedBox(height: 2.h),
                             Text(
-                              'സഹമിത്ര',
+                              lang.t('loginLogoSubtitle'),
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
@@ -278,14 +267,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w),
-                        child: Text(
-                          'Empowering parents, nurturing potential',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textTertiary,
+                      Flexible(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          child: Text(
+                            lang.t('loginHeaderTagline'),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textTertiary,
+                            ),
                           ),
                         ),
                       ),
@@ -313,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTabSwitcher() {
+  Widget _buildTabSwitcher(LanguageProvider lang) {
     return Container(
       padding: EdgeInsets.all(8.r),
       decoration: BoxDecoration(
@@ -331,14 +325,14 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           _TabButton(
             icon: Icons.smartphone_rounded,
-            label: 'Guest',
+            label: lang.t('loginTabGuest'),
             active: _activeTab == 'guest',
             onTap: () => _handleTabChange('guest'),
           ),
           SizedBox(width: 8.w),
           _TabButton(
             icon: Icons.account_circle_rounded,
-            label: 'Parent',
+            label: lang.t('loginTabParent'),
             active: _activeTab == 'parent',
             onTap: () => _handleTabChange('parent'),
           ),
@@ -347,7 +341,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildGuestTab() {
+  Widget _buildGuestTab(LanguageProvider lang) {
     return Container(
       key: const ValueKey('guest'),
       decoration: BoxDecoration(
@@ -392,25 +386,31 @@ class _LoginScreenState extends State<LoginScreen> {
                           size: 24.sp, color: AppColors.purple),
                     ),
                     SizedBox(width: 12.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Guest Access',
-                          style: TextStyle(
-                            fontSize: 19.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lang.t('guestAccess'),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 19.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Explore Without Login',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: AppColors.textTertiary,
+                          Text(
+                            lang.t('loginGuestSubtitle'),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: AppColors.textTertiary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -419,8 +419,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: Icons.play_circle_outline_rounded,
                   iconColor: AppColors.purple,
                   bgColor: AppColors.purple100,
-                  title: 'Therapy Videos',
-                  subtitle: 'Watch expert-guided therapy sessions and learn techniques',
+                  title: lang.t('loginGuestTherapyTitle'),
+                  subtitle: lang.t('loginGuestTherapySubtitle'),
                   tileBg: const Color(0xFFFAF5FF),
                 ),
                 SizedBox(height: 12.h),
@@ -428,8 +428,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: Icons.favorite_outline_rounded,
                   iconColor: AppColors.pink600,
                   bgColor: AppColors.pink100,
-                  title: 'Free Assessments',
-                  subtitle: 'Take TDSC, LEST, and parental stress assessments',
+                  title: lang.t('loginGuestAssessTitle'),
+                  subtitle: lang.t('loginGuestAssessSubtitle'),
                   tileBg: const Color(0xFFFDF2F8),
                 ),
                 SizedBox(height: 12.h),
@@ -437,8 +437,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: Icons.location_on_outlined,
                   iconColor: AppColors.blue600,
                   bgColor: AppColors.blue100,
-                  title: 'Find Centers',
-                  subtitle: 'Locate therapy centers near you with GPS mapping',
+                  title: lang.t('loginGuestCentersTitle'),
+                  subtitle: lang.t('loginGuestCentersSubtitle'),
                   tileBg: const Color(0xFFEFF6FF),
                 ),
                 SizedBox(height: AppSpacing.xl.h),
@@ -448,9 +448,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Explore as Guest', style: AppTextStyles.button),
+                      Flexible(
+                        child: Text(
+                          lang.t('loginGuestCta'),
+                          style: AppTextStyles.button,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                       SizedBox(width: 8.w),
-                      Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18.sp),
+                      Icon(Icons.auto_awesome_rounded,
+                          color: Colors.white, size: 18.sp),
                     ],
                   ),
                 ),
@@ -462,7 +471,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildParentTab() {
+  Widget _buildParentTab(LanguageProvider lang) {
     return Container(
       key: const ValueKey('parent'),
       padding: EdgeInsets.all(AppSpacing.xl.r),
@@ -480,8 +489,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          Text('Mobile Number', style: AppTextStyles.h3),
+          Text(lang.t('loginMobileLabel'), style: AppTextStyles.h3),
           SizedBox(height: 8.h),
           Row(
             children: [
@@ -534,14 +542,14 @@ class _LoginScreenState extends State<LoginScreen> {
             height: 56.h,
             child: _isLoading
                 ? const CircularProgressIndicator(color: Colors.white)
-                : Text('Send OTP', style: AppTextStyles.button),
+                : Text(lang.t('loginSendOtp'), style: AppTextStyles.button),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureGrid() {
+  Widget _buildFeatureGrid(LanguageProvider lang) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -549,9 +557,18 @@ class _LoginScreenState extends State<LoginScreen> {
       mainAxisSpacing: 12.h,
       crossAxisSpacing: 12.w,
       children: [
-        _FeatureCard(icon: Icons.favorite, label: 'Free Tests', color: AppColors.purple),
-        _FeatureCard(icon: Icons.video_library, label: 'Videos', color: AppColors.pink600),
-        _FeatureCard(icon: Icons.location_on, label: 'Centers', color: AppColors.blue600),
+        _FeatureCard(
+            icon: Icons.favorite,
+            label: lang.t('loginFeatureFreeTests'),
+            color: AppColors.purple),
+        _FeatureCard(
+            icon: Icons.video_library,
+            label: lang.t('loginFeatureVideos'),
+            color: AppColors.pink600),
+        _FeatureCard(
+            icon: Icons.location_on,
+            label: lang.t('loginFeatureCenters'),
+            color: AppColors.blue600),
       ],
     );
   }
@@ -594,14 +611,20 @@ class _TabButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 20.sp, color: active ? Colors.white : AppColors.textTertiary),
+              Icon(icon,
+                  size: 20.sp,
+                  color: active ? Colors.white : AppColors.textTertiary),
               SizedBox(width: 8.w),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: active ? Colors.white : AppColors.textTertiary,
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: active ? Colors.white : AppColors.textTertiary,
+                  ),
                 ),
               ),
             ],
@@ -641,7 +664,8 @@ class _GuestFeatureTile extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.all(8.r),
-            decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8.r)),
+            decoration: BoxDecoration(
+                color: bgColor, borderRadius: BorderRadius.circular(8.r)),
             child: Icon(icon, color: iconColor, size: 20.sp),
           ),
           SizedBox(width: 12.w),
@@ -649,8 +673,20 @@ class _GuestFeatureTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600)),
-                Text(subtitle, style: TextStyle(fontSize: 11.sp, color: AppColors.textTertiary)),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 14.sp, fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  subtitle,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 11.sp, color: AppColors.textTertiary),
+                ),
               ],
             ),
           ),
@@ -665,7 +701,8 @@ class _FeatureCard extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _FeatureCard({required this.icon, required this.label, required this.color});
+  const _FeatureCard(
+      {required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -680,7 +717,17 @@ class _FeatureCard extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 24.sp),
           SizedBox(height: 4.h),
-          Text(label, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style:
+                  TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );

@@ -13,6 +13,7 @@ class AppRoutes {
   static const String tdsc             = '/tdsc';
   static const String lest             = '/lest';
   static const String stress           = '/stress';
+  static const String stressNew        = '/stress-new';
   static const String risk             = '/risk';
   static const String results          = '/results';
   static const String gamification     = '/gamification';
@@ -31,4 +32,5 @@ class AppRoutes {
   static const String therapistDashboard = '/therapist-dashboard';
   static const String activityLibrary    = '/activity-library';
   static const String account            = '/account';
+  static const String videoPlayerScreen  = '/video-player';
 }

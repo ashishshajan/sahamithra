@@ -442,7 +442,7 @@ class NetworkHelper {
       };
     }
 
-    final url = Uri.parse('$_baseUrl/appointments/$appointmentId/cancel');
+    final url = Uri.parse('$_baseUrl/appointments/$appointmentId/update');
     return _withAutoRefresh(token, (effectiveToken) async {
       try {
         final response = await http.post(
@@ -523,6 +523,45 @@ class NetworkHelper {
           }),
         );
         print('getPatientLibraries response ${response.body}');
+        return _handleResponse(response);
+      } catch (e) {
+        return _handleError(e);
+      }
+    });
+  }
+
+  /// Updates watch status and completion for a therapy video session.
+  /// POST `/api/v1/patient-session/watch-update`
+  Future<Map<String, dynamic>> updatePatientSessionWatch({
+    required int childId,
+    required int sessionId,
+    required int watchStatus,
+    required int duration,
+  }) async {
+    final token = GlobalUtils().token;
+    if (token == null) {
+      return {
+        'success': false,
+        'message': 'Authentication token not found',
+      };
+    }
+
+    final url = Uri.parse('$_baseUrl/patient-session/watch-update');
+    return _withAutoRefresh(token, (effectiveToken) async {
+      try {
+        final body = <String, dynamic>{
+          'child_id': childId,
+          'session_id': sessionId,
+          'watch_status': watchStatus,
+          'duration': duration,
+        };
+        print('updatePatientSessionWatch url: $url body: $body');
+        final response = await http.post(
+          url,
+          headers: _getHeaders(token: effectiveToken, isJson: true),
+          body: jsonEncode(body),
+        );
+        print('updatePatientSessionWatch response ${response.body}');
         return _handleResponse(response);
       } catch (e) {
         return _handleError(e);

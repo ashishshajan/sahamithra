@@ -27,7 +27,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   late AnimationController _slideController;
   late Animation<double> _fadeAnim;
 
-  final List<_SlideData> _slides = const [
+  static const List<_SlideData> _slides = [
     _SlideData(
       icon: Icons.assignment_turned_in_rounded,
       gradient: LinearGradient(
@@ -35,14 +35,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      title: 'Developmental Assessments',
-      description:
-          "Track your child's development with scientifically validated screening tools",
-      features: [
-        'TDSC developmental screening',
-        'LEST language evaluation',
-        'Risk factor assessment',
-        'Parental stress monitoring',
+      titleKey: 'assessmentsTitle',
+      descriptionKey: 'assessmentsDesc',
+      featureKeys: [
+        'onboardingS1F1',
+        'onboardingS1F2',
+        'onboardingS1F3',
+        'onboardingS1F4',
       ],
     ),
     _SlideData(
@@ -52,14 +51,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      title: 'Home Therapy Programs',
-      description:
-          'Bridge the gap between therapy sessions and home care with expert-guided videos',
-      features: [
-        'Personalized therapy schedules',
-        'Step-by-step video instructions',
-        'Activity reminders',
-        'Real-time feedback',
+      titleKey: 'therapyTitle',
+      descriptionKey: 'therapyDesc',
+      featureKeys: [
+        'onboardingS2F1',
+        'onboardingS2F2',
+        'onboardingS2F3',
+        'onboardingS2F4',
       ],
     ),
     _SlideData(
@@ -69,14 +67,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      title: 'Daily Progress',
-      description:
-          'Stay motivated with rewards, streaks, and visual progress monitoring',
-      features: [
-        'Achievement badges & trophies',
-        'Daily streaks & point system',
-        'Progress charts & milestones',
-        'Leaderboards & challenges',
+      titleKey: 'trackingTitle',
+      descriptionKey: 'trackingDesc',
+      featureKeys: [
+        'onboardingS3F1',
+        'onboardingS3F2',
+        'onboardingS3F3',
+        'onboardingS3F4',
       ],
     ),
     _SlideData(
@@ -86,14 +83,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      title: 'CDMC Integration',
-      description:
-          'Seamlessly connect with Community Disability Management Centers',
-      features: [
-        'Multidisciplinary team collaboration',
-        'Appointment booking & management',
-        'Institution finder with GPS',
-        'Comprehensive reporting',
+      titleKey: 'cdmcTitle',
+      descriptionKey: 'cdmcDesc',
+      featureKeys: [
+        'onboardingS4F1',
+        'onboardingS4F2',
+        'onboardingS4F3',
+        'onboardingS4F4',
       ],
     ),
   ];
@@ -132,248 +128,216 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     }
   }
 
-  void _handleSkip() {
-    Get.offAllNamed(AppRoutes.login);
-  }
-
   @override
   Widget build(BuildContext context) {
     final slide = _slides[_currentSlide];
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFFAF5FF),
-              Color(0xFFFDF2F8),
-              Color(0xFFEFF6FF),
-            ],
+    return Obx(() {
+      final lang = LanguageProvider.to;
+
+      return Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFFAF5FF),
+                Color(0xFFFDF2F8),
+                Color(0xFFEFF6FF),
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // ─── Header ─────────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.xl.w,
-                  24.h,
-                  AppSpacing.xl.w,
-                  0,
+          child: SafeArea(
+            child: Column(
+              children: [
+                // ─── Header ─────────────────────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.xl.w,
+                    24.h,
+                    AppSpacing.xl.w,
+                    0,
+                  ),
+                  child: Row(
+                    children: [
+                      // Logo in white card
+                      Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const LogoWidget(
+                          size: LogoSize.small,
+                          showText: false,
+                        ),
+                      ),
+                      const Spacer(),
+                      const LanguageSwitcherDark(),
+                      SizedBox(width: 12.w),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    // Logo in white card
-                    Container(
-                      padding: EdgeInsets.all(8.r),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+
+                // ─── Slide content ───────────────────────────────────────────
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnim,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xl.w,
+                        vertical: AppSpacing.xl.h,
+                      ),
+                      child: Column(
+                        children: [
+                          // Icon circle
+                          Container(
+                            width: 128.r,
+                            height: 128.r,
+                            decoration: BoxDecoration(
+                              gradient: slide.gradient,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.purple.withOpacity(0.4),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              slide.icon,
+                              size: 64.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+
+                          SizedBox(height: 32.h),
+
+                          // Title
+                          Text(
+                            lang.t(slide.titleKey),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 22.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                              height: 1.3,
+                            ),
+                          ),
+
+                          SizedBox(height: 16.h),
+
+                          // Description
+                          Text(
+                            lang.t(slide.descriptionKey),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textSecondary,
+                              height: 1.6,
+                            ),
+                          ),
+
+                          SizedBox(height: 32.h),
+
+                          // Feature list card
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(AppSpacing.xl.r),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.xl2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.06),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: List.generate(
+                                slide.featureKeys.length,
+                                (i) => Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: i < slide.featureKeys.length - 1
+                                        ? 12.h
+                                        : 0,
+                                  ),
+                                  child: _FeatureItem(
+                                    text: lang.t(slide.featureKeys[i]),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      child: const LogoWidget(
-                        size: LogoSize.small,
-                        showText: false,
-                      ),
-                    ),
-                    const Spacer(),
-                    const LanguageSwitcherDark(),
-                    SizedBox(width: 12.w),
-                    // // Slide counter (e.g. 1/4) — hidden per request
-                    // Text(
-                    //   '${_currentSlide + 1}/${_slides.length}',
-                    //   style: TextStyle(
-                    //     fontSize: 13.sp,
-                    //     fontWeight: FontWeight.w500,
-                    //     color: AppColors.textSecondary,
-                    //   ),
-                    // ),
-                    // // Skip button — hidden per request
-                    // if (_currentSlide < _slides.length - 1) ...[
-                    //   SizedBox(width: 12.w),
-                    //   GestureDetector(
-                    //     onTap: _handleSkip,
-                    //     child: Container(
-                    //       padding: EdgeInsets.symmetric(
-                    //         horizontal: 12.w,
-                    //         vertical: 6.h,
-                    //       ),
-                    //       decoration: BoxDecoration(
-                    //         color: AppColors.purple100,
-                    //         borderRadius: BorderRadius.circular(10.r),
-                    //       ),
-                    //       child: Obx(
-                    //         () => Text(
-                    //           LanguageProvider.to.t('skip'),
-                    //           style: TextStyle(
-                    //             fontSize: 13.sp,
-                    //             fontWeight: FontWeight.w500,
-                    //             color: AppColors.purple,
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ],
-                  ],
-                ),
-              ),
-
-              // ─── Slide content ───────────────────────────────────────────
-              Expanded(
-                child: FadeTransition(
-                  opacity: _fadeAnim,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.xl.w,
-                      vertical: AppSpacing.xl.h,
-                    ),
-                    child: Column(
-                      children: [
-                        // Icon circle
-                        Container(
-                          width: 128.r,
-                          height: 128.r,
-                          decoration: BoxDecoration(
-                            gradient: slide.gradient,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.purple.withOpacity(0.4),
-                                blurRadius: 30,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            slide.icon,
-                            size: 64.sp,
-                            color: Colors.white,
-                          ),
-                        ),
-
-                        SizedBox(height: 32.h),
-
-                        // Title
-                        Text(
-                          slide.title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                            height: 1.3,
-                          ),
-                        ),
-
-                        SizedBox(height: 16.h),
-
-                        // Description
-                        Text(
-                          slide.description,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.textSecondary,
-                            height: 1.6,
-                          ),
-                        ),
-
-                        SizedBox(height: 32.h),
-
-                        // Feature list card
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(AppSpacing.xl.r),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(AppRadius.xl2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
-                                blurRadius: 20,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: List.generate(
-                              slide.features.length,
-                              (i) => Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: i < slide.features.length - 1 ? 12.h : 0,
-                                ),
-                                child: _FeatureItem(text: slide.features[i]),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ),
-              ),
 
-              // ─── Footer: dots + button ────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.xl.w,
-                  0,
-                  AppSpacing.xl.w,
-                  24.h,
-                ),
-                child: Column(
-                  children: [
-                    // Dots
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _slides.length,
-                        (i) => GestureDetector(
-                          onTap: () => _goToSlide(i),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            margin: EdgeInsets.symmetric(horizontal: 4.w),
-                            width: i == _currentSlide ? 32.w : 8.w,
-                            height: 8.h,
-                            decoration: BoxDecoration(
-                              gradient: i == _currentSlide
-                                  ? AppColors.purplePinkGradient
-                                  : null,
-                              color: i == _currentSlide
-                                  ? null
-                                  : AppColors.neutral300,
-                              borderRadius: BorderRadius.circular(AppRadius.full),
+                // ─── Footer: dots + button ────────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.xl.w,
+                    0,
+                    AppSpacing.xl.w,
+                    24.h,
+                  ),
+                  child: Column(
+                    children: [
+                      // Dots
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          _slides.length,
+                          (i) => GestureDetector(
+                            onTap: () => _goToSlide(i),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: EdgeInsets.symmetric(horizontal: 4.w),
+                              width: i == _currentSlide ? 32.w : 8.w,
+                              height: 8.h,
+                              decoration: BoxDecoration(
+                                gradient: i == _currentSlide
+                                    ? AppColors.purplePinkGradient
+                                    : null,
+                                color: i == _currentSlide
+                                    ? null
+                                    : AppColors.neutral300,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.full),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
 
-                    SizedBox(height: 24.h),
+                      SizedBox(height: 24.h),
 
-                    // Next / Get Started button
-                    GradientButton(
-                      onPressed: _handleNext,
-                      height: 56.h,
-                      child: Obx(
-                        () => Row(
+                      // Next / Get Started button
+                      GradientButton(
+                        onPressed: _handleNext,
+                        height: 56.h,
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               _currentSlide < _slides.length - 1
-                                  ? LanguageProvider.to.t('next')
-                                  : LanguageProvider.to.t('getStarted'),
+                                  ? lang.t('next')
+                                  : lang.t('getStarted'),
                               style: AppTextStyles.button,
                             ),
                             if (_currentSlide < _slides.length - 1) ...[
@@ -387,19 +351,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           ],
                         ),
                       ),
-                    ),
 
-                    SizedBox(height: 24.h),
+                      SizedBox(height: 24.h),
 
-                    const StandardFooter(),
-                  ],
+                      const StandardFooter(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -450,14 +414,14 @@ class _SlideData {
   const _SlideData({
     required this.icon,
     required this.gradient,
-    required this.title,
-    required this.description,
-    required this.features,
+    required this.titleKey,
+    required this.descriptionKey,
+    required this.featureKeys,
   });
 
   final IconData icon;
   final LinearGradient gradient;
-  final String title;
-  final String description;
-  final List<String> features;
+  final String titleKey;
+  final String descriptionKey;
+  final List<String> featureKeys;
 }

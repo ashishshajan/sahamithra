@@ -28,6 +28,68 @@ class AppTranslations extends Translations {
     'close': 'Close',
     'yes': 'Yes',
     'no': 'No',
+    'selectYesOrNo': 'Select Yes or No',
+    'previous': 'Previous',
+    'completeAssessment': 'Complete Assessment',
+    'questionLabel': 'Question',
+    'questionOf': 'of',
+    'parentalStressHintNext': 'Select your answer, then tap Next to continue',
+    'parentalStressHintComplete': 'Select your answer to complete the assessment',
+    'riskFactorHintSubmit': 'Select your answer, then tap Submit to continue',
+    'stressNoQuestionsMsg': 'No questions available',
+    'stressInterpLow': 'Low stress levels — you are managing well',
+    'stressInterpModerate': 'Moderate stress — consider seeking support',
+    'stressInterpHigh': 'High stress levels — please reach out for professional support',
+    'parentalStressFallback1':
+        'I feel overwhelmed by my parenting responsibilities',
+    'parentalStressFallback2': 'I feel stressed about my child\'s development',
+    'parentalStressFallback3': 'I have difficulty managing my child\'s behavior',
+    'parentalStressFallback4': 'I feel isolated in my parenting journey',
+    'parentalStressFallback5': 'I worry about my child\'s future',
+    'parentalStressFallback6': 'I have enough support from family and friends',
+    'parentalStressFallback7': 'I feel confident in my parenting abilities',
+    'parentalStressFallback8': 'I struggle to find time for self-care',
+    'riskFactorType': 'Risk Factor',
+    'riskInterpEmpty': 'No risk factors available',
+    'riskInterpNoneIdentified': 'No significant risk factors identified',
+    'riskInterpLowBand':
+        'Low risk — Minimal risk factors. Continue regular monitoring.',
+    'riskInterpModerateBand':
+        'Moderate risk — Some risk factors identified. Consider early intervention.',
+    'riskInterpHighBand':
+        'High risk — Multiple risk factors. Early intervention strongly recommended.',
+    'riskInterpVeryHighBand':
+        'Very high risk — Significant risk factors. Immediate evaluation recommended.',
+    'riskCategoryDefault': 'Risk',
+    'riskCatBirthHistory': 'Birth History',
+    'riskCatFamilyHistory': 'Family History',
+    'riskCatMedicalHistory': 'Medical History',
+    'riskCatSensory': 'Sensory',
+    'riskCatEnvironmental': 'Environmental',
+    'riskCatSocialEnvironmental': 'Social/Environmental',
+    'riskFactorFallback1':
+        'Was the child born prematurely (before 37 weeks)?',
+    'riskFactorFallback2':
+        'Did the child have low birth weight (less than 2.5 kg)?',
+    'riskFactorFallback3':
+        'Were there any complications during pregnancy or delivery?',
+    'riskFactorFallback4':
+        'Is there a family history of developmental delays or disabilities?',
+    'riskFactorFallback5':
+        'Does the child have any genetic conditions or syndromes?',
+    'riskFactorFallback6':
+        'Has the child experienced any serious infections (meningitis, encephalitis)?',
+    'riskFactorFallback7': 'Does the child have hearing or vision problems?',
+    'riskFactorFallback8':
+        'Has the child had any head injuries or seizures?',
+    'riskFactorFallback9':
+        'Is the child exposed to environmental toxins (lead, mercury)?',
+    'riskFactorFallback10':
+        'Does the child have limited access to early childhood education?',
+    'riskFactorFallback11':
+        'Has the child experienced significant stress or trauma?',
+    'riskFactorFallback12':
+        'Does the child have chronic health conditions (asthma, diabetes)?',
     'loading': 'Loading...',
     'retry': 'Retry',
     'error': 'Error',
@@ -51,9 +113,47 @@ class AppTranslations extends Translations {
     'cdmcDesc': 'Seamlessly connect with Community Disability Management Centers',
     'getStarted': 'Get Started',
 
+    'onboardingS1F1': 'TDSC developmental screening',
+    'onboardingS1F2': 'LEST language evaluation',
+    'onboardingS1F3': 'Risk factor assessment',
+    'onboardingS1F4': 'Parental stress monitoring',
+    'onboardingS2F1': 'Personalized therapy schedules',
+    'onboardingS2F2': 'Step-by-step video instructions',
+    'onboardingS2F3': 'Activity reminders',
+    'onboardingS2F4': 'Real-time feedback',
+    'onboardingS3F1': 'Achievement badges & trophies',
+    'onboardingS3F2': 'Daily streaks & point system',
+    'onboardingS3F3': 'Progress charts & milestones',
+    'onboardingS3F4': 'Leaderboards & challenges',
+    'onboardingS4F1': 'Multidisciplinary team collaboration',
+    'onboardingS4F2': 'Appointment booking & management',
+    'onboardingS4F3': 'Institution finder with GPS',
+    'onboardingS4F4': 'Comprehensive reporting',
+
     // Login Screen
     'parentLogin': 'Parent Login',
     'guestAccess': 'Guest Access',
+    'loginTabGuest': 'Guest',
+    'loginTabParent': 'Parent',
+    'loginHeaderTagline': 'Empowering parents, nurturing potential',
+    'loginLogoSubtitle': 'Child Development Assessment App',
+    'loginGuestSubtitle': 'Explore Without Login',
+    'loginGuestTherapyTitle': 'Therapy Videos',
+    'loginGuestTherapySubtitle':
+        'Watch expert-guided therapy sessions and learn techniques',
+    'loginGuestAssessTitle': 'Free Assessments',
+    'loginGuestAssessSubtitle':
+        'Take TDSC, LEST, and parental stress assessments',
+    'loginGuestCentersTitle': 'Find Centers',
+    'loginGuestCentersSubtitle':
+        'Locate therapy centers near you with GPS mapping',
+    'loginGuestCta': 'Explore as Guest',
+    'loginMobileLabel': 'Mobile Number',
+    'loginSendOtp': 'Send OTP',
+    'loginFeatureFreeTests': 'Free Tests',
+    'loginFeatureVideos': 'Videos',
+    'loginFeatureCenters': 'Centers',
+    'loginErrorGeneric': 'An error occurred',
     'therapistLogin': 'Therapist Login',
     'motherAadhaar': "Mother's Mobile Number",
     'enterAadhaar': 'Enter 10-digit mobile number',
@@ -178,6 +278,39 @@ class AppTranslations extends Translations {
 
     // Results
     'assessmentResults': 'Assessment Results',
+    'assessmentGeneric': 'Assessment',
+    'completed': 'completed',
+    'resultsSavedSuccessfully': 'Results saved successfully',
+    'resultsRecorded': 'Results have been recorded.',
+    'risks': 'risks',
+    'scoreZones': 'Score Zones',
+    'zoneLegendNormalDev': '80–100: Normal Development',
+    'zoneLegendMonitor': '60–79: Monitor Closely',
+    'zoneLegendAttention': '40–59: Requires Attention',
+    'zoneLegendImmediate': '0–39: Immediate Assessment',
+    'recommendedNextSteps': 'Recommended Next Steps',
+    'recNextLest': 'Complete Language Evaluation (LEST) if speech delay is suspected',
+    'recNextStress': 'Take the Parental Stress Assessment',
+    'recNextTherapy': 'Consider booking an appointment with a therapy institution',
+    'viewDetailedReport': 'View Detailed Report',
+    'downloadPdfReport': 'Download PDF Report',
+    'returnToDashboard': 'Return to Dashboard',
+    'noRiskFactors': 'No Risk Factors',
+    'healthyDevelopmentIndicators': 'Healthy development indicators',
+    'lowRisk': 'Low Risk',
+    'minimalRiskFactorsPresent': 'Minimal risk factors present',
+    'moderateRisk': 'Moderate Risk',
+    'someRiskFactorsIdentified': 'Some risk factors identified',
+    'highRisk': 'High Risk',
+    'multipleRiskFactorsPresent': 'Multiple risk factors present',
+    'greenZone': 'Green Zone',
+    'normalDevelopment': 'Normal Development',
+    'yellowZone': 'Yellow Zone',
+    'monitorClosely': 'Monitor Closely',
+    'orangeZone': 'Orange Zone',
+    'requiresAttention': 'Requires Attention',
+    'redZone': 'Red Zone',
+    'immediateAssessmentNeeded': 'Immediate Assessment Needed',
     'developmentalAge': 'Developmental Age',
     'chronologicalAge': 'Chronological Age',
     'months': 'months',
@@ -285,6 +418,22 @@ class AppTranslations extends Translations {
     'malayalam': 'മലയാളം',
     'changeLanguage': 'Change Language',
 
+    // Account / profile screen
+    'accountScreenSubtitle':
+        'View your personal details and manage your settings',
+    'accountChooseChild': 'Choose child',
+    'accountOk': 'OK',
+    'accountParentPrefix': 'Parent',
+    'accountAddress': 'Address',
+    'accountChildGender': 'Child\'s Gender',
+    'accountChildDob': 'Child\'s Date of Birth',
+    'accountMyAppointments': 'My Appointments',
+    'accountAppointmentsSubtitle': 'Manage your appointment details',
+    'accountCareTeamManageSubtitle': 'Manage your care team',
+    'accountLogOut': 'Log out',
+    'accountLogoutSubtitle':
+        'Further secure your account for safety',
+
     // Footer
     'home': 'Home',
     'schedule': 'Schedule',
@@ -319,6 +468,78 @@ class AppTranslations extends Translations {
     'close': 'അടയ്ക്കുക',
     'yes': 'ഉവ്വ്',
     'no': 'ഇല്ല',
+    'selectYesOrNo': 'ഉവ്വ് അല്ലെങ്കിൽ ഇല്ല തിരഞ്ഞെടുക്കുക',
+    'previous': 'മുമ്പത്തേത്',
+    'completeAssessment': 'വിലയിരുത്തൽ പൂർത്തിയാക്കുക',
+    'questionLabel': 'ചോദ്യം',
+    'questionOf': '/',
+    'parentalStressHintNext':
+        'ഉത്തരം തിരഞ്ഞെടുത്ത ശേഷം അടുത്തതിലേക്ക് പോകാൻ Next അമർത്തുക',
+    'parentalStressHintComplete':
+        'വിലയിരുത്തൽ പൂർത്തിയാക്കാൻ ഉത്തരം തിരഞ്ഞെടുക്കുക',
+    'riskFactorHintSubmit':
+        'ഉത്തരം തിരഞ്ഞെടുത്ത ശേഷം സമർപ്പിക്കാൻ Submit അമർത്തുക',
+    'stressNoQuestionsMsg': 'ചോദ്യങ്ങളൊന്നും ലഭ്യമല്ല',
+    'stressInterpLow': 'കുറഞ്ഞ സ്ട്രെസ് — നിങ്ങൾ നന്നായി കൈകാര്യം ചെയ്യുന്നു',
+    'stressInterpModerate': 'ഇടത്തരം സ്ട്രെസ് — പിന്തുണ തേടുന്നത് പരിഗണിക്കുക',
+    'stressInterpHigh': 'ഉയർന്ന സ്ട്രെസ് — പ്രൊഫഷണൽ പിന്തുണ തേടുക',
+    'parentalStressFallback1':
+        'എന്റെ രക്ഷാകർതൃ ഉത്തരവാദിത്വങ്ങൾ എന്നെ അതിക്രമിച്ച് തോന്നുന്നു',
+    'parentalStressFallback2':
+        'കുട്ടിയുടെ വികസനത്തെക്കുറിച്ച് എനിക്ക് സ്ട്രെസ് അനുഭവപ്പെടുന്നു',
+    'parentalStressFallback3':
+        'കുട്ടിയുടെ പെരുമാറ്റം നിയന്ത്രിക്കാൻ എനിക്ക് ബുദ്ധിമുട്ടുണ്ട്',
+    'parentalStressFallback4':
+        'എന്റെ രക്ഷാകർതൃ യാത്രയിൽ ഞാൻ ഒറ്റപ്പെട്ടതായി അനുഭവപ്പെടുന്നു',
+    'parentalStressFallback5': 'കുട്ടിയുടെ ഭാവിയെക്കുറിച്ച് ഞാൻ വ്യാകുലനാണ്',
+    'parentalStressFallback6':
+        'എനിക്ക് കുടുംബവും സുഹൃത്തുക്കളിൽ നിന്നും മതിയായ പിന്തുണ ലഭിക്കുന്നു',
+    'parentalStressFallback7':
+        'എന്റെ രക്ഷാകർതൃ കഴിവുകളിൽ എനിക്ക് വിശ്വാസമുണ്ട്',
+    'parentalStressFallback8':
+        'സ്വയം പരിചരണത്തിന് സമയം കണ്ടെത്താൻ എനിക്ക് പാടുപെടുന്നു',
+    'riskFactorType': 'റിസ്ക് ഫാക്ടർ',
+    'riskInterpEmpty': 'റിസ്ക് ഘടകങ്ങളൊന്നും ലഭ്യമല്ല',
+    'riskInterpNoneIdentified': 'ഗണനീയമായ റിസ്ക് ഘടകങ്ങളൊന്നും തിരിച്ചറിഞ്ഞില്ല',
+    'riskInterpLowBand':
+        'കുറഞ്ഞ റിസ്ക് — കുറഞ്ഞ ഘടകങ്ങൾ മാത്രം. പതിവ് നിരീക്ഷണം തുടരുക.',
+    'riskInterpModerateBand':
+        'ഇടത്തരം റിസ്ക് — ചില ഘടകങ്ങൾ തിരിച്ചറിഞ്ഞു. നേരത്തെയുള്ള ഇടപെടൽ പരിഗണിക്കുക.',
+    'riskInterpHighBand':
+        'ഉയർന്ന റിസ്ക് — ഒന്നിലധികം ഘടകങ്ങൾ. നേരത്തെയുള്ള ഇടപെടൽ ശക്തമായി ശുപാർശിക്കുന്നു.',
+    'riskInterpVeryHighBand':
+        'വളരെ ഉയർന്ന റിസ്ക് — ഗണനീയമായ ഘടകങ്ങൾ. ഉടൻ വിലയിരുത്തൽ ശുപാർശിക്കുന്നു.',
+    'riskCategoryDefault': 'റിസ്ക്',
+    'riskCatBirthHistory': 'ജനന ചരിത്രം',
+    'riskCatFamilyHistory': 'കുടുംബ ചരിത്രം',
+    'riskCatMedicalHistory': 'മെഡിക്കൽ ചരിത്രം',
+    'riskCatSensory': 'സംവേദനം',
+    'riskCatEnvironmental': 'പരിസ്ഥിതി',
+    'riskCatSocialEnvironmental': 'സാമൂഹിക/പരിസ്ഥിതി',
+    'riskFactorFallback1':
+        'കുട്ടി 37 ആഴ്ചയ്ക്ക് മുമ്പ് പ്രസവിച്ചതാണോ (പ്രസവകാലത്തിന് മുമ്പ്)?',
+    'riskFactorFallback2':
+        'കുട്ടിക്ക് താഴ്ന്ന ജനന വജനം (2.5 കിലോയിൽ താഴെ) ഉണ്ടായിരുന്നോ?',
+    'riskFactorFallback3':
+        'ഗർഭകാലത്തോ പ്രസവത്തിനോ സമയത്തോ സങ്കീർണ്ണതകൾ ഉണ്ടായിരുന്നോ?',
+    'riskFactorFallback4':
+        'വികസന വൈകല്യങ്ങളോ വൈകല്യങ്ങളോ ഉള്ള കുടുംബ ചരിത്രമുണ്ടോ?',
+    'riskFactorFallback5':
+        'കുട്ടിക്ക് ജനിതക രോഗങ്ങളോ സിൻഡ്രോമുകളോ ഉണ്ടോ?',
+    'riskFactorFallback6':
+        'കുട്ടിക്ക് ഗുരുതരമായ അണുബാധകൾ (മെനിഞ്ചൈറ്റിസ്, എൻസെഫലൈറ്റിസ്) ഉണ്ടായിരുന്നോ?',
+    'riskFactorFallback7':
+        'കുട്ടിക്ക് കേൾവിയോ കാഴ്ചയോ പ്രശ്നങ്ങളുണ്ടോ?',
+    'riskFactorFallback8':
+        'കുട്ടിക്ക് തലയ്ക്ക് പരിക്കോ കണ്ണുവലിയോ ഉണ്ടായിരുന്നോ?',
+    'riskFactorFallback9':
+        'കുട്ടി പരിസ്ഥിതി വിഷവസ്തുക്കളിൽ (സീസം, പാദരസം) നിന്നെടുക്കുന്നുണ്ടോ?',
+    'riskFactorFallback10':
+        'കുട്ടിക്ക് പ്രാരംഭ ബാല്യവിദ്യാഭ്യാസത്തിലേക്ക് പരിമിതമായ ആക്സസ് ഉണ്ടോ?',
+    'riskFactorFallback11':
+        'കുട്ടി ഗണനീയമായ സ്ട്രെസ് അല്ലെങ്കിൽ ആഘാതം അനുഭവിച്ചിട്ടുണ്ടോ?',
+    'riskFactorFallback12':
+        'കുട്ടിക്ക് നാഡീവ്യാധികൾ (ആസ്ത്മ, പ്രമേഹം) തുടർച്ചയായ ആരോഗ്യപ്രശ്നങ്ങളുണ്ടോ?',
     'loading': 'ലോഡിംഗ്...',
     'retry': 'പുനരാവർത്തിക്കുക',
     'error': 'പിശക്',
@@ -342,9 +563,48 @@ class AppTranslations extends Translations {
     'cdmcDesc': 'കമ്മ്യൂണിറ്റി ഡിസെബിലിറ്റി മാനേജ്‌മെന്റ് സെന്ററുകളുമായി സുഗമമായി ബന്ധപ്പെടുക',
     'getStarted': 'ആരംഭിക്കുക',
 
+    'onboardingS1F1': 'TDSC വികസന പരിശോധന',
+    'onboardingS1F2': 'LEST ഭാഷാ വിലയിരുത്തൽ',
+    'onboardingS1F3': 'റിസ്ക് ഫാക്ടർ വിലയിരുത്തൽ',
+    'onboardingS1F4': 'രക്ഷാകർതൃ സ്ട്രെസ് നിരീക്ഷണം',
+    'onboardingS2F1': 'വ്യക്തിഗത തെറാപ്പി ഷെഡ്യൂളുകൾ',
+    'onboardingS2F2': 'ഘട്ടം ഘട്ടമായ വീഡിയോ നിർദ്ദേശങ്ങൾ',
+    'onboardingS2F3': 'പ്രവർത്തന ഓർമ്മപ്പെടുത്തലുകൾ',
+    'onboardingS2F4': 'തൽസമയ ഫീഡ്ബാക്ക്',
+    'onboardingS3F1': 'നേട്ട ബാഡ്ജുകളും ട്രോഫികളും',
+    'onboardingS3F2': 'ദൈനംദിന സ്ട്രീക്കുകളും പോയിന്റ് സിസ്റ്റവും',
+    'onboardingS3F3': 'പുരോഗതി ചാർട്ടുകളും മൈൽസ്റ്റോണുകളും',
+    'onboardingS3F4': 'ലീഡർബോർഡുകളും വെല്ലുവിളികളും',
+    'onboardingS4F1': 'ബഹുവിഭാഗ സംഘ സഹകരണം',
+    'onboardingS4F2': 'അപ്പോയിന്റ്മെന്റ് ബുക്കിംഗും മാനേജ്മെന്റും',
+    'onboardingS4F3': 'GPS ഉള്ള സ്ഥാപന കണ്ടെത്തൽ',
+    'onboardingS4F4': 'സമഗ്ര റിപ്പോർട്ടിംഗ്',
+
     // Login Screen
     'parentLogin': 'രക്ഷിതാവിന്റെ പ്രവേശനം',
     'guestAccess': 'അതിഥി പ്രവേശനം',
+    'loginTabGuest': 'അതിഥി',
+    'loginTabParent': 'രക്ഷിതാവ്',
+    'loginHeaderTagline':
+        'രക്ഷിതാക്കളെ ശക്തിപ്പെടുത്തുന്നു, സാധ്യതകൾ പോഷിപ്പിക്കുന്നു',
+    'loginLogoSubtitle': 'കുട്ടികളുടെ വികസന വിലയിരുത്തൽ ആപ്പ്',
+    'loginGuestSubtitle': 'ലോഗിൻ ഇല്ലാതെ പര്യവേക്ഷണം ചെയ്യുക',
+    'loginGuestTherapyTitle': 'തെറാപ്പി വീഡിയോകൾ',
+    'loginGuestTherapySubtitle':
+        'വിദഗ്ദ്ധ നിർദ്ദേശിത തെറാപ്പി സെഷനുകൾ കാണുക, രീതികൾ പഠിക്കുക',
+    'loginGuestAssessTitle': 'സൗജന്യ വിലയിരുത്തലുകൾ',
+    'loginGuestAssessSubtitle':
+        'TDSC, LEST, രക്ഷാകർതൃ സ്ട്രെസ് വിലയിരുത്തലുകൾ നടത്തുക',
+    'loginGuestCentersTitle': 'കേന്ദ്രങ്ങൾ കണ്ടെത്തുക',
+    'loginGuestCentersSubtitle':
+        'GPS മാപ്പുപയോഗിച്ച് അടുത്തുള്ള തെറാപ്പി കേന്ദ്രങ്ങൾ കണ്ടെത്തുക',
+    'loginGuestCta': 'അതിഥിയായി പര്യവേക്ഷണം ചെയ്യുക',
+    'loginMobileLabel': 'മൊബൈൽ നമ്പർ',
+    'loginSendOtp': 'OTP അയയ്ക്കുക',
+    'loginFeatureFreeTests': 'സൗജന്യ ടെസ്റ്റുകൾ',
+    'loginFeatureVideos': 'വീഡിയോകൾ',
+    'loginFeatureCenters': 'കേന്ദ്രങ്ങൾ',
+    'loginErrorGeneric': 'ഒരു പിശക് സംഭവിച്ചു',
     'therapistLogin': 'തെറാപ്പിസ്റ്റ് പ്രവേശനം',
     'motherAadhaar': 'അമ്മയുടെ മൊബൈൽ നമ്പർ',
     'enterAadhaar': '10 അക്ക മൊബൈൽ നമ്പർ നൽകുക',
@@ -469,6 +729,39 @@ class AppTranslations extends Translations {
 
     // Results
     'assessmentResults': 'വിലയിരുത്തൽ ഫലങ്ങൾ',
+    'assessmentGeneric': 'വിലയിരുത്തൽ',
+    'completed': 'പൂർത്തിയായി',
+    'resultsSavedSuccessfully': 'ഫലങ്ങൾ വിജയകരമായി സംരക്ഷിച്ചു',
+    'resultsRecorded': 'ഫലങ്ങൾ രേഖപ്പെടുത്തിയിരിക്കുന്നു.',
+    'risks': 'അപായങ്ങൾ',
+    'scoreZones': 'സ്കോർ മേഖലകൾ',
+    'zoneLegendNormalDev': '80–100: സാധാരണ വികസനം',
+    'zoneLegendMonitor': '60–79: നിരീക്ഷണം ആവശ്യമാണ്',
+    'zoneLegendAttention': '40–59: ശ്രദ്ധ ആവശ്യമാണ്',
+    'zoneLegendImmediate': '0–39: ഉടൻ വിലയിരുത്തൽ',
+    'recommendedNextSteps': 'ശുപാർശിച്ച അടുത്ത ഘട്ടങ്ങൾ',
+    'recNextLest': 'സംസാര വൈകല്യം സംശയിക്കുന്നെങ്കിൽ ഭാഷാ വിലയിരുത്തൽ (LEST) പൂർത്തിയാക്കുക',
+    'recNextStress': 'രക്ഷാകർതൃ സ്ട്രെസ് വിലയിരുത്തൽ നടത്തുക',
+    'recNextTherapy': 'തെറാപ്പി സ്ഥാപനത്തിൽ അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്യുന്നത് പരിഗണിക്കുക',
+    'viewDetailedReport': 'വിശദമായ റിപ്പോർട്ട് കാണുക',
+    'downloadPdfReport': 'PDF റിപ്പോർട്ട് ഡൗൺലോഡ് ചെയ്യുക',
+    'returnToDashboard': 'ഡാഷ്ബോർഡിലേക്ക് മടങ്ങുക',
+    'noRiskFactors': 'അപായ ഘടകങ്ങളില്ല',
+    'healthyDevelopmentIndicators': 'ആരോഗ്യകരമായ വികസന സൂചകങ്ങൾ',
+    'lowRisk': 'കുറഞ്ഞ അപായം',
+    'minimalRiskFactorsPresent': 'കുറഞ്ഞ അപായ ഘടകങ്ങൾ മാത്രം',
+    'moderateRisk': 'ഇടത്തരം അപായം',
+    'someRiskFactorsIdentified': 'ചില അപായ ഘടകങ്ങൾ തിരിച്ചറിഞ്ഞു',
+    'highRisk': 'ഉയർന്ന അപായം',
+    'multipleRiskFactorsPresent': 'ഒന്നിലധികം അപായ ഘടകങ്ങൾ',
+    'greenZone': 'പച്ച മേഖല',
+    'normalDevelopment': 'സാധാരണ വികസനം',
+    'yellowZone': 'മഞ്ഞ മേഖല',
+    'monitorClosely': 'അടുത്ത് നിരീക്ഷിക്കുക',
+    'orangeZone': 'ഓറഞ്ച് മേഖല',
+    'requiresAttention': 'ശ്രദ്ധ ആവശ്യമാണ്',
+    'redZone': 'ചുവപ്പ് മേഖല',
+    'immediateAssessmentNeeded': 'ഉടൻ വിലയിരുത്തൽ ആവശ്യമാണ്',
     'developmentalAge': 'വികസന പ്രായം',
     'chronologicalAge': 'കലണ്ടർ പ്രായം',
     'months': 'മാസം',
@@ -575,6 +868,24 @@ class AppTranslations extends Translations {
     'english': 'English',
     'malayalam': 'മലയാളം',
     'changeLanguage': 'ഭാഷ മാറ്റുക',
+
+    // Account / profile screen
+    'accountScreenSubtitle':
+        'നിങ്ങളുടെ വ്യക്തിഗത വിവരങ്ങളും ക്രമീകരണങ്ങളും കാണുക, നിയന്ത്രിക്കുക',
+    'accountChooseChild': 'കുട്ടിയെ തിരഞ്ഞെടുക്കുക',
+    'accountOk': 'ശരി',
+    'accountParentPrefix': 'രക്ഷിതാവ്',
+    'accountAddress': 'വിലാസം',
+    'accountChildGender': 'കുട്ടിയുടെ ലിംഗം',
+    'accountChildDob': 'കുട്ടിയുടെ ജനനതീയതി',
+    'accountMyAppointments': 'എന്റെ അപ്പോയിന്റ്മെന്റുകൾ',
+    'accountAppointmentsSubtitle':
+        'നിങ്ങളുടെ അപ്പോയിന്റ്മെന്റ് വിശദാംശങ്ങൾ കൈകാര്യം ചെയ്യുക',
+    'accountCareTeamManageSubtitle':
+        'നിങ്ങളുടെ പരിചരണ സംഘം കൈകാര്യം ചെയ്യുക',
+    'accountLogOut': 'ലോഗ് ഔട്ട്',
+    'accountLogoutSubtitle':
+        'സുരക്ഷയ്ക്കായി നിങ്ങളുടെ അക്കൗണ്ട് കൂടുതൽ സുരക്ഷിതമാക്കുക',
 
     // Footer
     'home': 'ഗൃഹം',

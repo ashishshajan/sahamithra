@@ -1,14 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
+import '../models/video_item.dart';
+import '../routes/app_routes.dart';
 import '../widgets/gradient_header.dart';
 import '../widgets/standard_footer.dart';
-
-import '../models/video_item.dart';
 
 class VideosListScreen extends StatelessWidget {
   const VideosListScreen({
@@ -54,8 +54,16 @@ class _VideoRow extends StatelessWidget {
 
   final VideoItem video;
 
+  void _openPlayer() {
+    if (video.videoUrl.isEmpty) return;
+    Get.toNamed(AppRoutes.videoPlayerScreen, arguments: video);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final thumb = video.thumbnailUrl?.trim();
+    final hasThumb = thumb != null && thumb.isNotEmpty;
+
     return Container(
       padding: EdgeInsets.all(AppSpacing.base.r),
       decoration: BoxDecoration(
@@ -75,22 +83,53 @@ class _VideoRow extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 90.w,
-                height: 64.h,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFEE2E2), Color(0xFFFCE7F3)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
+              GestureDetector(
+                onTap: video.videoUrl.isEmpty ? null : _openPlayer,
+                child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                child: SizedBox(
+                  width: 90.w,
+                  height: 64.h,
+                  child: hasThumb
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl: thumb,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: const Color(0xFFFCE7F3),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 22.w,
+                                    height: 22.w,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  _thumbFallback(),
+                            ),
+                            Center(
+                              child: Icon(
+                                Icons.play_circle_filled_rounded,
+                                size: 36.sp,
+                                color: Colors.white.withOpacity(0.92),
+                                shadows: const [
+                                  Shadow(
+                                    blurRadius: 6,
+                                    color: Colors.black45,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      : _thumbFallback(),
                 ),
-                child: const Icon(
-                  Icons.play_circle_rounded,
-                  size: 36,
-                  color: Colors.red,
-                ),
+              ),
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -139,14 +178,7 @@ class _VideoRow extends StatelessWidget {
               ),
               const Spacer(),
               OutlinedButton.icon(
-                onPressed: () async {
-                  if (video.videoUrl.isEmpty) return;
-                  final uri = Uri.parse(video.videoUrl);
-                  await launchUrl(
-                    uri,
-                    mode: LaunchMode.externalApplication,
-                  );
-                },
+                onPressed: video.videoUrl.isEmpty ? null : _openPlayer,
                 icon: Icon(Icons.play_arrow_rounded,
                     size: 16.sp, color: AppColors.orange600),
                 label: Text(
@@ -167,6 +199,25 @@ class _VideoRow extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _thumbFallback() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFFEE2E2), Color(0xFFFCE7F3)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.play_circle_filled_rounded,
+          size: 36.sp,
+          color: AppColors.pink600,
+        ),
       ),
     );
   }

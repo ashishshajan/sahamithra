@@ -7,6 +7,7 @@ import '../core/global_utils.dart';
 import '../core/network/network_helper.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
+import '../providers/language_provider.dart';
 import '../routes/app_routes.dart';
 import '../widgets/language_switcher.dart';
 
@@ -101,6 +102,45 @@ class _AccountScreenState extends State<AccountScreen> {
         .toUpperCase();
   }
 
+
+
+  String _localizedGender(String stored, LanguageProvider lang) {
+    final s = stored.trim().toLowerCase();
+    if (s == 'male' || s == 'm') return lang.t('male');
+    if (s == 'female' || s == 'f') return lang.t('female');
+    return stored;
+  }
+
+  /// Normalizes API / stored DOB to `dd-mm-yyyy` for display.
+  String _formatDobForDisplay(String raw) {
+    final s = raw.trim();
+    if (s.isEmpty) return s;
+
+    // yyyy-mm-dd (ISO) or yyyy-mm-ddTHH:MM:SS
+    final iso = RegExp(r'^(\d{4})-(\d{2})-(\d{2})');
+    final isoMatch = iso.firstMatch(s);
+    if (isoMatch != null) {
+      final y = isoMatch.group(1)!;
+      final mo = isoMatch.group(2)!;
+      final d = isoMatch.group(3)!;
+      return '$d-$mo-$y';
+    }
+
+    // dd-mm-yyyy or dd/mm/yyyy (pad segments)
+    final dmy = RegExp(r'^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$');
+    final dmyMatch = dmy.firstMatch(s);
+    if (dmyMatch != null) {
+      final day = int.parse(dmyMatch.group(1)!);
+      final month = int.parse(dmyMatch.group(2)!);
+      final year = dmyMatch.group(3)!;
+      return '${day.toString().padLeft(2, '0')}-'
+          '${month.toString().padLeft(2, '0')}-'
+          '$year';
+    }
+
+    return s;
+  }
+
   Future<void> _showChooseChildSheet() async {
     final utils = GlobalUtils();
     final children = _childrenForPicker(utils);
@@ -111,9 +151,11 @@ class _AccountScreenState extends State<AccountScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Padding(
+        return Obx(() {
+          final lang = LanguageProvider.to;
+          return StatefulBuilder(
+            builder: (context, setModalState) {
+              return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
@@ -148,7 +190,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         ),
                         SizedBox(height: 20.h),
                         Text(
-                          'Choose child',
+                          lang.t('accountChooseChild'),
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.w600,
@@ -230,7 +272,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               setState(() {});
                             },
                             child: Text(
-                              'OK',
+                              lang.t('accountOk'),
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -258,6 +300,7 @@ class _AccountScreenState extends State<AccountScreen> {
             );
           },
         );
+        });
       },
     );
   }
@@ -269,14 +312,15 @@ class _AccountScreenState extends State<AccountScreen> {
     final childName = utils.childName ?? 'Meera Prasad';
     final parentLabel = utils.parentName ?? 'Heera Hari';
     final phone = utils.phoneNumber ?? '+91 989510xxxx';
-    final email = (userMap?['email'] ?? 'heera123@xxx.com').toString();
     final address = (userMap?['address'] ??
             '123 MG Road, Ernakulam, Kochi, Kerala - 682001, India')
         .toString();
     final gender = utils.childGender ?? 'Female';
-    final dob = utils.childDob ?? '03-03-2023';
+    final dob = _formatDobForDisplay(utils.childDob ?? '03-03-2023');
 
-    return Scaffold(
+    return Obx(() {
+      final lang = LanguageProvider.to;
+      return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -324,7 +368,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                       SizedBox(height: 12.h),
                       Text(
-                        'Profile',
+                        lang.t('profile'),
                         style: TextStyle(
                           fontSize: 25.sp,
                           fontWeight: FontWeight.w400,
@@ -332,13 +376,20 @@ class _AccountScreenState extends State<AccountScreen> {
                         ),
                       ),
                       SizedBox(height: 4.h),
-                      Text(
-                        'View your personal details and manage your settings',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withOpacity(0.95),
-                          height: 1.35,
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            lang.t('accountScreenSubtitle'),
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withOpacity(0.95),
+                              height: 1.35,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ],
@@ -445,7 +496,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               // ),
                               SizedBox(height: 4.h),
                               Text(
-                                'Parent : $parentLabel',
+                                '${lang.t('accountParentPrefix')}: $parentLabel',
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w300,
@@ -459,39 +510,39 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                     SizedBox(height: 28.h),
                     _detailBlock(
-                      label: 'Address',
+                      label: lang.t('accountAddress'),
                       value: address,
                     ),
                     SizedBox(height: 18.h),
                     _detailBlock(
-                      label: 'Child’s Gender',
-                      value: gender,
+                      label: lang.t('accountChildGender'),
+                      value: _localizedGender(gender, lang),
                     ),
                     SizedBox(height: 18.h),
                     _detailBlock(
-                      label: 'Child’s Date of Birth',
+                      label: lang.t('accountChildDob'),
                       value: dob,
                     ),
                     SizedBox(height: 28.h),
                     _AccountMenuTile(
                       icon: Icons.event_available_rounded,
-                      title: 'My Appointments',
-                      subtitle: 'Manage your appointment details',
+                      title: lang.t('accountMyAppointments'),
+                      subtitle: lang.t('accountAppointmentsSubtitle'),
                       onTap: () =>
                           Get.toNamed(AppRoutes.appointmentHistory),
                     ),
                     SizedBox(height: 12.h),
                     _AccountMenuTile(
                       icon: Icons.groups_rounded,
-                      title: 'Care Team',
-                      subtitle: 'Manage your care team',
+                      title: lang.t('careTeam'),
+                      subtitle: lang.t('accountCareTeamManageSubtitle'),
                       onTap: () => Get.toNamed(AppRoutes.teamCollaboration),
                     ),
                     SizedBox(height: 12.h),
                     _AccountMenuTile(
                       icon: Icons.logout_rounded,
-                      title: 'Log out',
-                      subtitle: 'Further secure your account for safety',
+                      title: lang.t('accountLogOut'),
+                      subtitle: lang.t('accountLogoutSubtitle'),
                       onTap: _logout,
                     ),
                     SizedBox(height: 24.h),
@@ -503,6 +554,7 @@ class _AccountScreenState extends State<AccountScreen> {
         ],
       ),
     );
+    });
   }
 
   Widget _detailBlock({required String label, required String value}) {

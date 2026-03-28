@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -342,9 +343,33 @@ class _VideoModuleCard extends StatefulWidget {
 class _VideoModuleCardState extends State<_VideoModuleCard> {
   bool _isNavigating = false;
 
+  Widget _fallbackThumb() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFFEE2E2), Color(0xFFFCE7F3)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.play_circle_rounded,
+          size: 36.sp,
+          color: AppColors.pink600,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final module = widget.module;
+    final firstThumb = module.videoItems.isNotEmpty
+        ? module.videoItems.first.thumbnailUrl?.trim()
+        : null;
+    final hasThumb = firstThumb != null && firstThumb.isNotEmpty;
+
     return Container(
       padding: EdgeInsets.all(AppSpacing.base.r),
       decoration: BoxDecoration(
@@ -362,20 +387,53 @@ class _VideoModuleCardState extends State<_VideoModuleCard> {
         children: [
           Row(
             children: [
-              // Thumbnail
-              Container(
-                width: 90.w,
-                height: 64.h,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFEE2E2), Color(0xFFFCE7F3)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
+              // Thumbnail: first video in this module's list
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                child: Container(
+                  width: 90.w,
+                  height: 64.h,
+                  color: const Color(0xFFFEE2E2),
+                  child: hasThumb
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl: firstThumb,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: const Color(0xFFFCE7F3),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 22.w,
+                                    height: 22.w,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  _fallbackThumb(),
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.play_circle_rounded,
+                                size: 36.sp,
+                                color: Colors.white.withOpacity(0.92),
+                                shadows: const [
+                                  Shadow(
+                                    blurRadius: 6,
+                                    color: Colors.black45,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      : _fallbackThumb(),
                 ),
-                child: Icon(Icons.play_circle_rounded,
-                    size: 36.sp, color: AppColors.pink600),
               ),
               SizedBox(width: 12.w),
               Expanded(

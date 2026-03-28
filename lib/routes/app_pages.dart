@@ -20,6 +20,7 @@ import '../screens/lest_assessment_screen.dart';
 
 // Newly added complete screens
 import '../screens/parental_stress_screen.dart';
+import '../screens/parental_stress_screen_new.dart';
 import '../screens/risk_factor_screen.dart';
 import '../screens/results_screen.dart';
 import '../screens/weekly_therapy_schedule_screen.dart';
@@ -36,6 +37,7 @@ import '../screens/data_privacy_screen.dart';
 import '../screens/therapist_dashboard_screen.dart';
 import '../screens/activity_library_screen.dart';
 import '../screens/account_screen.dart';
+import '../screens/video_player_screen.dart';
 
 import 'app_routes.dart';
 
@@ -120,6 +122,11 @@ class AppPages {
       transition: Transition.cupertino,
     ),
     GetPage(
+      name: AppRoutes.stressNew,
+      page: () => const ParentalStressScreenNew(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
       name: AppRoutes.risk,
       page: () => const RiskFactorScreen(),
       transition: Transition.cupertino,
@@ -139,6 +146,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.videos,
       page: () => const TherapyVideosScreen(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: AppRoutes.videoPlayerScreen,
+      page: () => const VideoPlayerScreen(),
       transition: Transition.cupertino,
     ),
     GetPage(

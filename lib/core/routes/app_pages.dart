@@ -12,6 +12,7 @@ import '../../screens/tdsc_assessment_screen.dart';
 import '../../screens/lest_assessment_screen.dart';
 import '../../screens/results_screen.dart';
 import '../../screens/parental_stress_screen.dart';
+import '../../screens/parental_stress_screen_new.dart';
 import '../../screens/risk_factor_screen.dart';
 import '../../screens/institution_finder_screen.dart';
 import '../../screens/therapy_videos_screen.dart';
@@ -77,6 +78,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.stress,
       page: () => const ParentalStressScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.stressNew,
+      page: () => const ParentalStressScreenNew(),
     ),
     GetPage(
       name: AppRoutes.risk,
