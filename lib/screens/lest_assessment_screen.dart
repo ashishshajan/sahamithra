@@ -20,72 +20,78 @@ class LESTAssessmentScreen extends StatefulWidget {
 }
 
 class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
+  /// Must match backend `scales` API category for Language Evaluation Scale Trivandrum.
+  static const String _scaleCategory = 'LEST';
+
   int _currentSection = 0;
   final Map<String, bool?> _answers = {};
 
-  bool _isLoading = false;
+  bool _isLoading = true;
   String? _error;
 
-  List<_Section> _sections = [
-    _Section(
-      name: 'Pre-Linguistic',
-      subtitle: '0–12 months',
-      icon: Icons.child_care_rounded,
-      color: AppColors.cyan600,
-      bgColor: AppColors.cyan100,
-      questions: [
-        _LQuestion('pl1', 'Does the child respond to sound by startling or blinking?', '0-3 months'),
-        _LQuestion('pl2', 'Does the child vocalize sounds other than crying?', '2-4 months'),
-        _LQuestion('pl3', 'Does the child turn towards a voice or sound?', '4-6 months'),
-        _LQuestion('pl4', 'Does the child babble with consonant-vowel combinations?', '6-9 months'),
-        _LQuestion('pl5', 'Does the child understand simple words like "no" or their name?', '9-12 months'),
-      ],
-    ),
-    _Section(
-      name: 'Receptive Language',
-      subtitle: 'Understanding',
-      icon: Icons.hearing_rounded,
-      color: AppColors.blue600,
-      bgColor: AppColors.blue100,
-      questions: [
-        _LQuestion('rl1', 'Does the child follow simple one-step instructions?', '12-15 months'),
-        _LQuestion('rl2', 'Can the child point to body parts when asked?', '15-18 months'),
-        _LQuestion('rl3', 'Does the child understand "give me" and "show me"?', '18-21 months'),
-        _LQuestion('rl4', 'Can the child identify common objects by name?', '18-24 months'),
-        _LQuestion('rl5', 'Does the child follow two-step directions?', '2-2.5 years'),
-        _LQuestion('rl6', 'Can the child understand concepts like big/small, in/out?', '2.5-3 years'),
-      ],
-    ),
-    _Section(
-      name: 'Expressive Language',
-      subtitle: 'Speaking',
-      icon: Icons.record_voice_over_rounded,
-      color: AppColors.green600,
-      bgColor: AppColors.green100,
-      questions: [
-        _LQuestion('el1', 'Does the child use at least 3 words meaningfully?', '12-15 months'),
-        _LQuestion('el2', 'Does the child use 10+ words consistently?', '15-18 months'),
-        _LQuestion('el3', 'Does the child combine 2 words (e.g., "more juice")?', '18-24 months'),
-        _LQuestion('el4', 'Can the child name familiar pictures in a book?', '18-24 months'),
-        _LQuestion('el5', 'Does the child use pronouns like "I" and "me"?', '2-2.5 years'),
-        _LQuestion('el6', 'Can the child tell a simple story or describe events?', '3-4 years'),
-      ],
-    ),
-    _Section(
-      name: 'Pragmatics',
-      subtitle: 'Social Communication',
-      icon: Icons.forum_rounded,
-      color: AppColors.purple,
-      bgColor: AppColors.purple100,
-      questions: [
-        _LQuestion('pg1', 'Does the child make eye contact during communication?', '0-12 months'),
-        _LQuestion('pg2', 'Does the child use gestures like pointing or waving?', '9-12 months'),
-        _LQuestion('pg3', 'Does the child initiate communication with others?', '12-18 months'),
-        _LQuestion('pg4', 'Can the child take turns in conversation?', '2-3 years'),
-        _LQuestion('pg5', 'Does the child understand humor or simple jokes?', '3-4 years'),
-      ],
-    ),
-  ];
+  List<_Section> _sections = [];
+
+  /// Offline placeholder when the API fails or returns no rows.
+  static List<_Section> _fallbackSections() => [
+        _Section(
+          name: 'Pre-Linguistic',
+          subtitle: '0–12 months',
+          icon: Icons.child_care_rounded,
+          color: AppColors.cyan600,
+          bgColor: AppColors.cyan100,
+          questions: [
+            _LQuestion('pl1', 'Does the child respond to sound by startling or blinking?', '0-3 months'),
+            _LQuestion('pl2', 'Does the child vocalize sounds other than crying?', '2-4 months'),
+            _LQuestion('pl3', 'Does the child turn towards a voice or sound?', '4-6 months'),
+            _LQuestion('pl4', 'Does the child babble with consonant-vowel combinations?', '6-9 months'),
+            _LQuestion('pl5', 'Does the child understand simple words like "no" or their name?', '9-12 months'),
+          ],
+        ),
+        _Section(
+          name: 'Receptive Language',
+          subtitle: 'Understanding',
+          icon: Icons.hearing_rounded,
+          color: AppColors.blue600,
+          bgColor: AppColors.blue100,
+          questions: [
+            _LQuestion('rl1', 'Does the child follow simple one-step instructions?', '12-15 months'),
+            _LQuestion('rl2', 'Can the child point to body parts when asked?', '15-18 months'),
+            _LQuestion('rl3', 'Does the child understand "give me" and "show me"?', '18-21 months'),
+            _LQuestion('rl4', 'Can the child identify common objects by name?', '18-24 months'),
+            _LQuestion('rl5', 'Does the child follow two-step directions?', '2-2.5 years'),
+            _LQuestion('rl6', 'Can the child understand concepts like big/small, in/out?', '2.5-3 years'),
+          ],
+        ),
+        _Section(
+          name: 'Expressive Language',
+          subtitle: 'Speaking',
+          icon: Icons.record_voice_over_rounded,
+          color: AppColors.green600,
+          bgColor: AppColors.green100,
+          questions: [
+            _LQuestion('el1', 'Does the child use at least 3 words meaningfully?', '12-15 months'),
+            _LQuestion('el2', 'Does the child use 10+ words consistently?', '15-18 months'),
+            _LQuestion('el3', 'Does the child combine 2 words (e.g., "more juice")?', '18-24 months'),
+            _LQuestion('el4', 'Can the child name familiar pictures in a book?', '18-24 months'),
+            _LQuestion('el5', 'Does the child use pronouns like "I" and "me"?', '2-2.5 years'),
+            _LQuestion('el6', 'Can the child tell a simple story or describe events?', '3-4 years'),
+          ],
+        ),
+        _Section(
+          name: 'Pragmatics',
+          subtitle: 'Social Communication',
+          icon: Icons.forum_rounded,
+          color: AppColors.purple,
+          bgColor: AppColors.purple100,
+          questions: [
+            _LQuestion('pg1', 'Does the child make eye contact during communication?', '0-12 months'),
+            _LQuestion('pg2', 'Does the child use gestures like pointing or waving?', '9-12 months'),
+            _LQuestion('pg3', 'Does the child initiate communication with others?', '12-18 months'),
+            _LQuestion('pg4', 'Can the child take turns in conversation?', '2-3 years'),
+            _LQuestion('pg5', 'Does the child understand humor or simple jokes?', '3-4 years'),
+          ],
+        ),
+      ];
 
   _Section get current => _sections[_currentSection];
 
@@ -105,7 +111,7 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
       setState(() => _currentSection++);
     } else {
       Get.toNamed(AppRoutes.results, arguments: {
-        'type': 'LEST',
+        'type': _scaleCategory,
         'answers': _answers,
         'score': _calcScore(),
       });
@@ -118,46 +124,131 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
     _loadQuestions();
   }
 
+  /// Parses scales API body from [NetworkHelper.fetchScalesQuestions] `result['data']`.
+  /// Supports `{ "data": [ questions ], "pagination": { ... } }` or a bare question list.
+  static List<Map<String, dynamic>>? _extractQuestionRows(dynamic payload) {
+    if (payload == null) return null;
+    if (payload is List) {
+      return _normalizeQuestionMaps(payload);
+    }
+    if (payload is Map) {
+      final m = Map<String, dynamic>.from(payload);
+      final d = m['data'];
+      if (d is List) {
+        return _normalizeQuestionMaps(d);
+      }
+    }
+    return null;
+  }
+
+  static List<Map<String, dynamic>> _normalizeQuestionMaps(List<dynamic> raw) {
+    final out = <Map<String, dynamic>>[];
+    for (final e in raw) {
+      if (e is Map<String, dynamic>) {
+        out.add(e);
+      } else if (e is Map) {
+        out.add(Map<String, dynamic>.from(e));
+      }
+    }
+    return out;
+  }
+
+  static Map<String, dynamic>? _readPagination(dynamic payload) {
+    if (payload is! Map) return null;
+    final p = payload['pagination'];
+    if (p is Map) {
+      return Map<String, dynamic>.from(p);
+    }
+    return null;
+  }
+
+  static _LQuestion _mapRowToQuestion(Map<String, dynamic> q) {
+    final id = q['id']?.toString() ?? '';
+    final englishText =
+        (q['question_english'] ?? q['question_malayalam'] ?? '').toString();
+    final malayalamText =
+        (q['question_malayalam'] ?? q['question_english'] ?? englishText)
+            .toString();
+    return _LQuestion(id, englishText, '', malayalamText);
+  }
+
   Future<void> _loadQuestions() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
-    final result = await NetworkHelper().fetchScalesQuestions(category: 'LEST');
-    if (!mounted) return;
+    final mergedRows = <Map<String, dynamic>>[];
+    final seenIds = <String>{};
+    var page = 1;
+    const maxPages = 30;
 
-    if (result['success'] != true) {
-      setState(() {
-        _isLoading = false;
-        _error = result['message'] ?? 'Failed to load questions';
-      });
-      return;
+    while (page <= maxPages) {
+      final countBeforePage = mergedRows.length;
+
+      final result = await NetworkHelper()
+          .fetchScalesQuestions(category: _scaleCategory, page: page);
+      if (!mounted) return;
+
+      if (result['success'] != true) {
+        setState(() {
+          _isLoading = false;
+          _error = result['message']?.toString() ?? 'Failed to load questions';
+          _sections = _fallbackSections();
+          _currentSection = 0;
+        });
+        return;
+      }
+
+      final payload = result['data'];
+      final rows = _extractQuestionRows(payload);
+      if (rows == null) {
+        setState(() {
+          _isLoading = false;
+          _error = 'Unexpected response format';
+          _sections = _fallbackSections();
+          _currentSection = 0;
+        });
+        return;
+      }
+
+      for (final row in rows) {
+        final id = row['id']?.toString() ?? '';
+        if (id.isEmpty || seenIds.contains(id)) continue;
+        seenIds.add(id);
+        mergedRows.add(row);
+      }
+
+      // Server ignored pagination and resent the same page — avoid an infinite loop.
+      if (page > 1 &&
+          mergedRows.length == countBeforePage &&
+          rows.isNotEmpty) {
+        break;
+      }
+
+      final pag = _readPagination(payload);
+      final hasMore = pag?['has_more'] == true;
+      final lastPage = (pag?['last_page'] as num?)?.toInt();
+      if (!hasMore) break;
+      if (lastPage != null && page >= lastPage) break;
+      if (rows.isEmpty) break;
+      page++;
     }
 
-    final payload = result['data'];
-    final questionsRaw = payload is Map ? payload['data'] : null;
-    if (questionsRaw is! List) {
-      setState(() {
-        _isLoading = false;
-        _error = 'Unexpected response format';
-      });
-      return;
-    }
-
-    final questions = questionsRaw
-        .whereType<Map>()
-        .map((q) {
-          final id = q['id']?.toString() ?? '';
-          final englishText = (q['question_english'] ?? q['question_malayalam'] ?? '').toString();
-          final malayalamText = (q['question_malayalam'] ?? q['question_english'] ?? englishText).toString();
-          return _LQuestion(id, englishText, '', malayalamText);
-        })
+    final questions = mergedRows
+        .map(_mapRowToQuestion)
         .where((q) => q.id.isNotEmpty)
         .toList();
 
+    if (!mounted) return;
+
     if (questions.isEmpty) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _error = 'No questions returned';
+        _sections = _fallbackSections();
+        _currentSection = 0;
+      });
       return;
     }
 
@@ -166,8 +257,8 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
       _currentSection = 0;
       _sections = [
         _Section(
-          name: 'LEST',
-          subtitle: '',
+          name: _scaleCategory,
+          subtitle: '${questions.length} items',
           icon: Icons.hearing_rounded,
           color: AppColors.blue600,
           bgColor: AppColors.blue100,
@@ -193,12 +284,41 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading && _sections.isEmpty) {
+    if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
+
+    if (_sections.isEmpty) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.r),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _error ?? 'No assessment content',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14.sp, color: AppColors.textSecondary),
+                  ),
+                  SizedBox(height: 16.h),
+                  TextButton(
+                    onPressed: _loadQuestions,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
@@ -208,6 +328,28 @@ class _LESTAssessmentScreenState extends State<LESTAssessmentScreen> {
             title: 'LEST Assessment',
             subtitle: 'Language Evaluation Scale Trivandrum',
           ),
+
+          if (_error != null)
+            Material(
+              color: AppColors.amber100,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline_rounded,
+                        size: 18.sp, color: AppColors.amber600),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        _error!,
+                        style: TextStyle(
+                            fontSize: 12.sp, color: AppColors.textPrimary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // Progress
           Container(

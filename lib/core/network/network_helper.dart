@@ -148,6 +148,36 @@ class NetworkHelper {
     });
   }
 
+  /// Dashboard summary for a child.
+  /// GET `/api/v1/get-dashboard-data?child_id={id}`
+  /// Response body includes `status`, `message`, and nested `data` with progress, etc.
+  Future<Map<String, dynamic>> getDashboardData({required int childId}) async {
+    final token = GlobalUtils().token;
+    if (token == null) {
+      return {
+        'success': false,
+        'message': 'Authentication token not found',
+      };
+    }
+
+    final url = Uri.parse('$_baseUrl/get-dashboard-data').replace(
+      queryParameters: {'child_id': childId.toString()},
+    );
+
+    return _withAutoRefresh(token, (effectiveToken) async {
+      try {
+        final response = await http.get(
+          url,
+          headers: _getHeaders(token: effectiveToken),
+        );
+        print('getDashboardData response ${response.body}');
+        return _handleResponse(response);
+      } catch (e) {
+        return _handleError(e);
+      }
+    });
+  }
+
   // 6. Therapy Centre List (GET - Bearer Auth with auto-refresh)
   Future<Map<String, dynamic>> getTherapyCentres() async {
     final token = GlobalUtils().token;
@@ -200,8 +230,10 @@ class NetworkHelper {
 
   // 7.1 Fetch Scales Questions (POST - Bearer Auth with auto-refresh)
   // Only `category` is passed from UI; `dob` is taken from `GlobalUtils().childDob`.
+  /// [page] is sent when > 0 for paginated scale lists (e.g. LEST).
   Future<Map<String, dynamic>> fetchScalesQuestions({
     required String category,
+    int page = 1,
   }) async {
     final token = GlobalUtils().token;
     if (token == null) {
@@ -221,15 +253,20 @@ class NetworkHelper {
 
     final url = Uri.parse('$_baseUrl/scales');
     return _withAutoRefresh(token, (effectiveToken) async {
-      print('Called fetchScalesQuestions api with url: $url and body: $category');
+      final body = <String, dynamic>{
+        'category': category,
+        'dob': dob,
+      };
+      // Extra pages only — first request matches legacy clients with no `page` field.
+      if (page > 1) {
+        body['page'] = page;
+      }
+      print('Called fetchScalesQuestions api with url: $url and body: $body');
       try {
         final response = await http.post(
           url,
           headers: _getHeaders(token: effectiveToken, isJson: true),
-          body: jsonEncode({
-            'category': category,
-            'dob': dob,
-          }),
+          body: jsonEncode(body),
         );
         print('Called fetchScalesQuestions response: ${response.body}');
 
@@ -413,6 +450,7 @@ class NetworkHelper {
           headers: _getHeaders(token: effectiveToken, isJson: true),
           body: jsonEncode({
             'child_id': childId,
+            'appointment_status': 'cancelled_by_parent',
           }),
         );
         print('cancelAppointment response ${response.body}');

@@ -11,6 +11,7 @@ import '../widgets/language_switcher.dart';
 import '../widgets/logo_widget.dart';
 import '../widgets/standard_footer.dart';
 import '../routes/app_routes.dart';
+import 'lest_assessment_screen.dart';
 
 /// Mirrors /components/DashboardScreen.tsx
 ///
@@ -33,13 +34,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _navIndex = 0;
   Map<String, dynamic>? _userData;
 
+  bool _dashboardLoading = false;
+  Map<String, dynamic>? _dashboardData;
+  String? _dashboardError;
+
   void _handleLogout() {
     _doLogout();
   }
 
   Future<void> _doLogout() async {
     try {
-      final result = await NetworkHelper().logout();
+      await NetworkHelper().logout();
 
       // Regardless of server response, clear local session and go to login.
       await GlobalUtils().logout();
@@ -57,6 +62,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     final args = Get.arguments as Map<String, dynamic>?;
     _userData = args;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadDashboardData());
+  }
+
+  Future<void> _loadDashboardData() async {
+    final childId = GlobalUtils().childId;
+    if (childId == null) return;
+
+    setState(() {
+      _dashboardLoading = true;
+      _dashboardError = null;
+    });
+
+    final r = await NetworkHelper().getDashboardData(childId: childId);
+    if (!mounted) return;
+
+    if (r['success'] != true) {
+      setState(() {
+        _dashboardLoading = false;
+        _dashboardError = r['message']?.toString();
+      });
+      return;
+    }
+
+    final payload = _unwrapDashboardPayload(r['data']);
+    setState(() {
+      _dashboardLoading = false;
+      _dashboardData = payload;
+    });
+  }
+
+  /// API may nest payload at `data.data` or expose fields on the top-level `data` map.
+  Map<String, dynamic>? _unwrapDashboardPayload(dynamic data) {
+    if (data is! Map) return null;
+    final outer = Map<String, dynamic>.from(data);
+    final inner = outer['data'];
+    if (inner is Map) {
+      return Map<String, dynamic>.from(inner);
+    }
+    return outer;
+  }
+
+  static int? _parseInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    return int.tryParse(v.toString());
+  }
+
+  String _progressChangeLine(LanguageProvider lang) {
+    final raw = _dashboardData?['progress_change'];
+    if (raw == null) return '+12% ${lang.t("fromLastMonth")}';
+    if (raw is num) {
+      final sign = raw >= 0 ? '+' : '';
+      return '$sign${raw.toString()}% ${lang.t("fromLastMonth")}';
+    }
+    var s = raw.toString().trim();
+    if (s.isEmpty) return '+12% ${lang.t("fromLastMonth")}';
+    if (!s.contains('%')) {
+      final n = num.tryParse(s);
+      if (n != null) {
+        final sign = n >= 0 ? '+' : '';
+        s = '$sign$n%';
+      }
+    }
+    return '$s ${lang.t("fromLastMonth")}';
   }
 
   void _navigate(String route) => Get.toNamed(route);
@@ -222,6 +291,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildProgressCard(LanguageProvider lang, AppProvider app) {
     return Obx(() {
       final progress = app.progressData.value;
+      final overall = _parseInt(_dashboardData?['overall_progress']) ??
+          progress.overall;
+      final clamped = overall.clamp(0, 100);
+
       return GestureDetector(
         onTap: () => _navigate(AppRoutes.progressTracking),
         child: Container(
@@ -240,46 +313,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      lang.t('overallProgress'),
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: Colors.white.withOpacity(0.9),
+                child: _dashboardLoading && _dashboardData == null
+                    ? SizedBox(
+                        height: 120.h,
+                        child: Center(
+                          child: SizedBox(
+                            width: 28.w,
+                            height: 28.w,
+                            child: const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lang.t('overallProgress'),
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            '$clamped%',
+                            style: TextStyle(
+                              fontSize: 36.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.full),
+                            child: LinearProgressIndicator(
+                              value: clamped / 100,
+                              backgroundColor: Colors.white.withOpacity(0.2),
+                              valueColor: const AlwaysStoppedAnimation(
+                                Colors.white,
+                              ),
+                              minHeight: 10.h,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            _progressChangeLine(lang),
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                          if (_dashboardError != null) ...[
+                            SizedBox(height: 6.h),
+                            Text(
+                              _dashboardError!,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: Colors.white.withOpacity(0.75),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      '${progress.overall}%',
-                      style: TextStyle(
-                        fontSize: 36.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadius.full),
-                      child: LinearProgressIndicator(
-                        value: progress.overall / 100,
-                        backgroundColor: Colors.white.withOpacity(0.2),
-                        valueColor:
-                            const AlwaysStoppedAnimation(Colors.white),
-                        minHeight: 10.h,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      '+12% ${lang.t("fromLastMonth")}',
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                  ],
-                ),
               ),
               SizedBox(width: 16.w),
               Icon(
@@ -357,8 +458,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildWeeklyScheduleCard(LanguageProvider lang, AppProvider app) {
     return Obx(() {
-      final completed = app.completedCount;
-      final total = app.totalCount;
+      final tw = _dashboardData?['this_week'];
+      int completed = app.completedCount;
+      int total = app.totalCount;
+      if (tw is Map) {
+        completed = _parseInt(tw['completed']) ?? completed;
+        total = _parseInt(tw['total']) ?? total;
+      }
       return GestureDetector(
         onTap: () => _navigate(AppRoutes.weeklySchedule),
         child: Container(
@@ -451,6 +557,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title: lang.t('developmentalScreening'),
               subtitle: lang.t('tdscRange'),
               onTap: () => _navigate(AppRoutes.tdsc),
+            ),
+            SizedBox(height: 12.h),
+            _ServiceCard(
+              icon: Icons.record_voice_over_rounded,
+              iconBg: AppColors.teal100,
+              iconColor: AppColors.teal600,
+              title: lang.t('lestAssessment'),
+              subtitle: lang.t('lestDescription'),
+              onTap: () => Get.to(() => const LESTAssessmentScreen()),
             ),
             SizedBox(height: 12.h),
             _ServiceCard(
