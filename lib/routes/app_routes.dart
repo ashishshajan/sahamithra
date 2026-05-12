@@ -1,0 +1,38 @@
+/// Centralized named route constants for GetX navigation
+class AppRoutes {
+  AppRoutes._();
+
+  static const String splash           = '/';
+  static const String onboarding       = '/onboarding';
+  static const String login            = '/login';
+  static const String otpVerification  = '/otp-verification';
+  static const String registration     = '/registration';
+  static const String dashboard        = '/dashboard';
+  static const String publicDashboard  = '/public-dashboard';
+  static const String assessmentMenu   = '/assessment-menu';
+  /// Child DOB step before opening an assessment from [AssessmentMenuScreen].
+  static const String assessmentDob    = '/assessment-date-of-birth';
+  static const String tdsc             = '/tdsc';
+  static const String lest             = '/lest';
+  static const String stress           = '/stress';
+  static const String stressNew        = '/stress-new';
+  static const String risk             = '/risk';
+  static const String results          = '/results';
+  static const String gamification     = '/gamification';
+  static const String progressTracking = '/progress-tracking';
+  static const String weeklySchedule   = '/weekly-schedule';
+  static const String videos           = '/videos';
+  static const String institutions     = '/institutions';
+  static const String cdmcServices     = '/cdmc-services';
+  static const String teamCollaboration = '/team-collaboration';
+  static const String appointments     = '/appointments';
+  static const String appointmentHistory = '/appointment-history';
+  static const String reports          = '/reports';
+  static const String reminders        = '/reminders';
+  static const String feedback         = '/feedback';
+  static const String dataPrivacy      = '/data-privacy';
+  static const String therapistDashboard = '/therapist-dashboard';
+  static const String activityLibrary    = '/activity-library';
+  static const String account            = '/account';
+  static const String videoPlayerScreen  = '/video-player';
+}
